@@ -1,0 +1,194 @@
+---
+import MainLayout from "./MainLayout.astro";
+import FileTree from "../components/FileTree.astro";
+import SearchBar from "../components/SearchBar";
+import { getFileTree, getAllNotes } from "../lib/vault";
+import { getLastSync } from "../lib/git";
+
+interface Props {
+  title: string;
+  currentPath?: string;
+}
+
+const { title, currentPath = "" } = Astro.props;
+
+const tree = await getFileTree();
+const allNotes = await getAllNotes();
+const lastSync = await getLastSync();
+---
+
+<MainLayout title={title}>
+  <div class="h-screen flex overflow-hidden bg-bg-primary">
+    <!-- Sidebar -->
+    <aside
+      class="w-80 bg-bg-secondary border-r border-border flex flex-col shrink-0"
+      transition:persist
+    >
+      <!-- Header -->
+      <div class="p-4 border-b border-border">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="text-2xl">📚</span>
+          <h1 class="text-lg font-semibold text-text-primary">Vault</h1>
+        </div>
+
+        <div class="text-xs text-text-muted mb-3">
+          {
+            lastSync
+              ? `Last sync: ${new Date(lastSync).toLocaleString("id-ID")}`
+              : "Not synced yet"
+          }
+        </div>
+
+        <button
+          id="sync-btn"
+          class="w-full px-4 py-2 bg-accent hover:bg-accent-hover text-white rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <span class="sync-icon">🔄</span>
+          <span class="sync-text">Sync</span>
+        </button>
+      </div>
+
+      <!-- File Tree -->
+      <div class="flex-1 overflow-y-auto scrollbar-thin p-2">
+        <FileTree tree={tree} />
+      </div>
+
+      <!-- Logout -->
+      <div class="p-4 border-t border-border">
+        <form action="/api/logout" method="POST">
+          <button
+            type="submit"
+            class="w-full px-4 py-2 bg-error/20 hover:bg-error/30 text-error rounded-lg font-medium transition-colors"
+          >
+            Logout
+          </button>
+        </form>
+      </div>
+    </aside>
+
+    <!-- Main Content Wrapper -->
+    <div class="flex-1 flex flex-col min-w-0">
+      <!-- Top Bar / Header -->
+      <header
+        class="h-16 border-b border-border bg-bg-primary/80 backdrop-blur flex items-center justify-between px-6 shrink-0 z-10 sticky top-0"
+      >
+        <div class="flex items-center gap-4 min-w-0">
+          <!-- Dynamic Title/Path -->
+          <h2 class="text-lg font-medium text-text-primary truncate">
+            {
+              currentPath ? (
+                <span class="flex items-center gap-2">
+                  <span class="text-text-muted">/</span>
+                  {currentPath}
+                </span>
+              ) : (
+                "Dashboard"
+              )
+            }
+          </h2>
+        </div>
+
+        <div class="w-72">
+          <SearchBar client:load notes={allNotes} />
+        </div>
+      </header>
+
+      <!-- Content Area -->
+      <main class="flex-1 overflow-y-auto scrollbar-thin p-8">
+        <slot />
+      </main>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("astro:page-load", () => {
+      // Sync Button Handler
+      document
+        .getElementById("sync-btn")
+        ?.addEventListener("click", async (e) => {
+          const btn = e.currentTarget as HTMLButtonElement;
+          const icon = btn.querySelector(".sync-icon") as HTMLSpanElement;
+          const text = btn.querySelector(".sync-text") as HTMLSpanElement;
+
+          btn.disabled = true;
+          icon.textContent = "⏳";
+          text.textContent = "Syncing...";
+          icon.classList.add("animate-spin");
+
+          try {
+            const res = await fetch("/api/sync", { method: "POST" });
+            const data = await res.json();
+
+            if (data.success) {
+              icon.textContent = "✅";
+              text.textContent = "Synced!";
+              icon.classList.remove("animate-spin");
+              setTimeout(() => window.location.reload(), 1000);
+            } else {
+              icon.textContent = "❌";
+              text.textContent = "Error";
+              icon.classList.remove("animate-spin");
+              setTimeout(() => {
+                btn.disabled = false;
+                icon.textContent = "🔄";
+                text.textContent = "Sync";
+              }, 2000);
+            }
+          } catch {
+            icon.textContent = "❌";
+            text.textContent = "Error";
+            icon.classList.remove("animate-spin");
+            setTimeout(() => {
+              btn.disabled = false;
+              icon.textContent = "🔄";
+              text.textContent = "Sync";
+            }, 2000);
+          }
+        });
+
+      // Handle Excalidraw embeds globally for all pages using this layout
+      const embeds = document.querySelectorAll(".excalidraw-embed");
+      embeds.forEach(async (embed) => {
+        const data = embed.getAttribute("data-excalidraw");
+        if (data && !embed.hasChildNodes()) {
+          const decoded = decodeURIComponent(data);
+          embed.innerHTML = `<iframe 
+            src="https://excalidraw.com/#json=${btoa(decoded)}" 
+            width="100%" 
+            height="500"
+            frameborder="0"
+            class="rounded-lg border border-border"
+          ></iframe>`;
+        }
+      });
+    });
+    /* Loading Indicator Logic */
+    const overlay = document.getElementById("loading-overlay");
+
+    document.addEventListener("astro:before-preparation", () => {
+      if (overlay) {
+        overlay.classList.remove("opacity-0", "pointer-events-none");
+      }
+    });
+
+    document.addEventListener("astro:after-swap", () => {
+      if (overlay) {
+        overlay.classList.add("opacity-0", "pointer-events-none");
+      }
+    });
+  </script>
+
+  <div
+    id="loading-overlay"
+    class="fixed inset-0 bg-bg-primary/50 backdrop-blur-sm z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-200"
+  >
+    <div class="flex flex-col items-center gap-3">
+      <div
+        class="w-10 h-10 border-4 border-accent border-t-transparent rounded-full animate-spin"
+      >
+      </div>
+      <span class="text-text-primary font-medium animate-pulse">Loading...</span
+      >
+    </div>
+  </div>
+</MainLayout>

@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.astro/
+.env
+
+# Auth database
+auth.db
+auth.db-shm
+auth.db-wal
+
+# Vault folder (jangan di-commit)
+vault/
+
+# OS
+.DS_Store
+Thumbs.db

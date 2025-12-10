@@ -1,0 +1,192 @@
+@import "tailwindcss";
+@import "highlight.js/styles/github-dark.css";
+@plugin "@tailwindcss/typography";
+
+/* Custom theme for Obsidian Web Viewer */
+@theme {
+  /* Colors - Dark Theme */
+  --color-bg-primary: #0f0f0f;
+  --color-bg-secondary: #171717;
+  --color-bg-tertiary: #262626;
+  --color-bg-elevated: #2d2d2d;
+
+  /* Accent */
+  --color-accent: #6366f1;
+  --color-accent-hover: #818cf8;
+  --color-accent-muted: #4f46e5;
+
+  /* Text */
+  --color-text-primary: #f5f5f5;
+  --color-text-secondary: #d4d4d4;
+  --color-text-muted: #a3a3a3;
+
+  /* Borders */
+  --color-border: #3e3e3e;
+  --color-border-light: #525252;
+
+  /* Status */
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+}
+
+/* Base styles */
+@layer base {
+  html {
+    @apply antialiased;
+  }
+
+  body {
+    @apply bg-bg-primary text-text-secondary font-sans;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply text-text-primary font-semibold;
+  }
+
+  a {
+    @apply text-accent hover:text-accent-hover transition-colors;
+  }
+}
+
+/* Custom utilities */
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border) transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 3px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: var(--color-border-light);
+  }
+}
+
+/* Prose styling for markdown content */
+@layer components {
+  .prose {
+    @apply text-text-secondary leading-relaxed;
+  }
+
+  .prose h1,
+  .prose h2,
+  .prose h3,
+  .prose h4,
+  .prose h5,
+  .prose h6 {
+    @apply text-text-primary font-semibold mt-8 mb-4 scroll-mt-20;
+  }
+  
+  .prose h1 { @apply text-3xl; }
+  .prose h2 { @apply text-2xl border-b border-border pb-2; }
+  .prose h3 { @apply text-xl; }
+  .prose h4 { @apply text-lg; }
+
+  .prose p {
+    @apply mb-4;
+  }
+
+  .prose a {
+    @apply text-accent hover:text-accent-hover underline underline-offset-2 transition-colors;
+  }
+
+  .prose strong {
+    @apply text-text-primary font-semibold;
+  }
+
+  .prose code {
+    @apply bg-bg-tertiary text-accent-hover px-1.5 py-0.5 rounded text-sm font-mono;
+  }
+
+  .prose pre {
+    @apply bg-bg-secondary border border-border rounded-lg p-4 overflow-x-auto my-4;
+  }
+
+  .prose pre code {
+    @apply bg-transparent p-0 text-text-secondary text-sm;
+  }
+
+  .prose blockquote {
+    @apply border-l-4 border-accent pl-4 py-1 my-4 text-text-muted italic bg-bg-secondary/50 rounded-r-lg;
+  }
+
+  .prose ul,
+  .prose ol {
+    @apply my-4 pl-6;
+  }
+
+  .prose li {
+    @apply mb-2;
+  }
+
+  .prose ul > li {
+    @apply list-disc;
+  }
+
+  .prose ol > li {
+    @apply list-decimal;
+  }
+
+  .prose table {
+    @apply w-full border-collapse my-4;
+  }
+
+  .prose th,
+  .prose td {
+    @apply border border-border px-4 py-2 text-left;
+  }
+
+  .prose th {
+    @apply bg-bg-secondary font-semibold text-text-primary;
+  }
+
+  .prose tr:hover {
+    @apply bg-bg-secondary/50;
+  }
+
+  .prose img {
+    @apply rounded-lg my-4 max-w-full h-auto;
+  }
+
+  .prose hr {
+    @apply border-border my-8;
+  }
+
+  /* Mermaid diagrams */
+  .prose .mermaid {
+    @apply bg-white rounded-lg p-4 my-4;
+  }
+
+  /* Excalidraw embeds */
+  .prose .excalidraw-embed {
+    @apply bg-white rounded-lg p-4 my-4 min-h-[400px];
+  }
+
+  /* Obsidian Callouts */
+  .prose .callout {
+    @apply bg-bg-secondary border-l-4 rounded-r-lg p-4 my-4;
+  }
+
+  .prose .callout-info { @apply border-blue-500; }
+  .prose .callout-warning { @apply border-warning; }
+  .prose .callout-error { @apply border-error; }
+  .prose .callout-success { @apply border-success; }
+}

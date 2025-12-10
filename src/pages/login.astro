@@ -1,0 +1,121 @@
+---
+import MainLayout from "../layouts/MainLayout.astro";
+import { lucia } from "../lib/auth";
+import { db } from "../lib/auth";
+import { validateSession } from "../lib/middleware";
+import * as bcrypt from "bcrypt";
+
+const { user } = await validateSession(Astro.cookies);
+
+if (user) {
+  return Astro.redirect("/");
+}
+
+let error = "";
+
+if (Astro.request.method === "POST") {
+  const formData = await Astro.request.formData();
+  const username = formData.get("username")?.toString() ?? "";
+  const password = formData.get("password")?.toString() ?? "";
+
+  if (!username || !password) {
+    error = "Username dan password harus diisi";
+  } else {
+    const user = db
+      .prepare("SELECT * FROM user WHERE username = ?")
+      .get(username) as any;
+
+    const isValidPassword =
+      user && (await bcrypt.compare(password, user.password_hash));
+    if (!isValidPassword) {
+      error = "Username atau password salah";
+    } else {
+      const session = await lucia.createSession(user.id, {});
+      const sessionCookie = lucia.createSessionCookie(session.id);
+      Astro.cookies.set(
+        sessionCookie.name,
+        sessionCookie.value,
+        sessionCookie.attributes
+      );
+      return Astro.redirect("/");
+    }
+  }
+}
+---
+
+<MainLayout title="Login">
+  <div class="min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+      <!-- Logo / Brand -->
+      <div class="text-center mb-8">
+        <div class="text-6xl mb-4">📚</div>
+        <h1 class="text-2xl font-bold text-text-primary">Obsidian Web</h1>
+        <p class="text-text-muted mt-2">Sign in to access your vault</p>
+      </div>
+
+      <!-- Login Card -->
+      <div
+        class="bg-bg-secondary rounded-2xl p-8 border border-border shadow-xl"
+      >
+        {
+          error && (
+            <div class="mb-6 p-4 bg-error/10 border border-error/30 rounded-lg text-error text-sm flex items-center gap-2">
+              <span>⚠️</span>
+              <span>{error}</span>
+            </div>
+          )
+        }
+
+        <form method="POST" class="space-y-6">
+          <div>
+            <label
+              for="username"
+              class="block text-sm font-medium text-text-secondary mb-2"
+            >
+              Username
+            </label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              required
+              autocomplete="username"
+              class="w-full px-4 py-3 bg-bg-primary border border-border rounded-lg text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all"
+              placeholder="Enter your username"
+            />
+          </div>
+
+          <div>
+            <label
+              for="password"
+              class="block text-sm font-medium text-text-secondary mb-2"
+            >
+              Password
+            </label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              required
+              autocomplete="current-password"
+              class="w-full px-4 py-3 bg-bg-primary border border-border rounded-lg text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all"
+              placeholder="Enter your password"
+            />
+          </div>
+
+          <button
+            type="submit"
+            class="w-full py-3 px-4 bg-accent hover:bg-accent-hover text-white font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg-secondary"
+          >
+            Sign In
+          </button>
+        </form>
+      </div>
+
+      <!-- Footer -->
+      <p class="text-center text-text-muted text-sm mt-6">
+        Obsidian Web Viewer • Read-only access
+      </p>
+    </div>
+  </div>
+</MainLayout>

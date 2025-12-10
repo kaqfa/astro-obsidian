@@ -1,0 +1,50 @@
+---
+import type { FileTreeItem } from "../lib/vault";
+
+interface Props {
+  tree: FileTreeItem[];
+  level?: number;
+}
+
+const { tree, level = 0 } = Astro.props;
+---
+
+<div class="p-2" style={`padding-left: ${level * 1}rem`}>
+  {
+    tree.map((item) => (
+      <div class="my-1">
+        {item.type === "folder" ? (
+          <details class="group">
+            <summary class="flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer select-none text-text-secondary hover:bg-bg-tertiary transition-colors font-medium">
+              <span class="text-sm transition-transform group-open:rotate-90">
+                ▶
+              </span>
+              <span class="text-sm">📁</span>
+              <span class="truncate">{item.name}</span>
+            </summary>
+            {item.children && (
+              <Astro.self tree={item.children} level={level + 1} />
+            )}
+          </details>
+        ) : (
+          <a
+            href={`/notes/${item.path.replace(".md", "")}`}
+            class="flex items-center gap-2 px-3 py-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-bg-tertiary transition-colors text-sm"
+          >
+            <span>📄</span>
+            <span class="truncate">{item.name.replace(".md", "")}</span>
+          </a>
+        )}
+      </div>
+    ))
+  }
+</div>
+
+<style>
+  details > summary {
+    list-style: none;
+  }
+  details > summary::-webkit-details-marker {
+    display: none;
+  }
+</style>

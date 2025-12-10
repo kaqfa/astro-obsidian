@@ -1,0 +1,114 @@
+---
+import DashboardLayout from "../layouts/DashboardLayout.astro";
+import { validateSession } from "../lib/middleware";
+import { getAllNotes, getFileTree } from "../lib/vault";
+
+const { user } = await validateSession(Astro.cookies);
+
+if (!user) {
+  return Astro.redirect("/login");
+}
+
+const allNotes = await getAllNotes();
+const tree = await getFileTree();
+---
+
+<DashboardLayout title="Dashboard">
+  <div class="max-w-4xl mx-auto">
+    <!-- Welcome Header -->
+    <div class="mb-8">
+      <h2 class="text-3xl font-bold text-text-primary mb-2">
+        Welcome back, <span class="text-accent">{user.username}</span>! 👋
+      </h2>
+      <p class="text-text-muted">
+        Select a note from the sidebar to start reading.
+      </p>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <!-- Total Notes Card -->
+      <div
+        class="bg-bg-secondary rounded-xl p-6 border border-border hover:border-accent/50 transition-colors group"
+      >
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-3xl">📝</span>
+          <span
+            class="text-xs text-text-muted bg-bg-tertiary px-2 py-1 rounded-full"
+            >Notes</span
+          >
+        </div>
+        <div
+          class="text-4xl font-bold text-accent group-hover:text-accent-hover transition-colors"
+        >
+          {allNotes.length}
+        </div>
+        <div class="text-sm text-text-muted mt-1">Total Notes</div>
+      </div>
+
+      <!-- Folders Card -->
+      <div
+        class="bg-bg-secondary rounded-xl p-6 border border-border hover:border-accent/50 transition-colors group"
+      >
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-3xl">📁</span>
+          <span
+            class="text-xs text-text-muted bg-bg-tertiary px-2 py-1 rounded-full"
+            >Folders</span
+          >
+        </div>
+        <div
+          class="text-4xl font-bold text-accent group-hover:text-accent-hover transition-colors"
+        >
+          {tree.children?.filter((c) => c.isFolder).length || 0}
+        </div>
+        <div class="text-sm text-text-muted mt-1">Top-level Folders</div>
+      </div>
+
+      <!-- Sync Status Card -->
+      <div
+        class="bg-bg-secondary rounded-xl p-6 border border-border hover:border-success/50 transition-colors group"
+      >
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-3xl">✅</span>
+          <span
+            class="text-xs text-text-muted bg-bg-tertiary px-2 py-1 rounded-full"
+            >Status</span
+          >
+        </div>
+        <div
+          class="text-xl font-bold text-success group-hover:text-success transition-colors"
+        >
+          Synced
+        </div>
+        <div class="text-sm text-text-muted mt-1">Checked recently</div>
+      </div>
+    </div>
+
+    <!-- Quick Tips -->
+    <div class="mt-8 bg-bg-secondary rounded-xl p-6 border border-border">
+      <h3
+        class="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2"
+      >
+        <span>💡</span> Quick Tips
+      </h3>
+      <ul class="space-y-2 text-text-muted">
+        <li class="flex items-start gap-2">
+          <span class="text-accent">•</span>
+          Use the search bar to quickly find notes by title or content
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-accent">•</span>
+          Click the Sync button to pull the latest changes from your Git repository
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-accent">•</span>
+          Wikilinks <code
+            class="bg-bg-tertiary px-1.5 py-0.5 rounded text-xs font-mono"
+            >[[Note]]</code
+          > work automatically
+        </li>
+      </ul>
+    </div>
+  </div>
+</DashboardLayout>

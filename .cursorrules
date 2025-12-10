@@ -1,0 +1,39 @@
+# Project Context
+You are working on "Obsidian Web Viewer", a self-hosted web application that provides read-only access to an Obsidian vault with Git synchronization.
+The goal is to create a personal knowledge base viewer that feels premium, fast, and responsive.
+
+# Tech Stack
+- **Framework**: Astro (Node.js adapter)
+- **Frontend**: React (for interactive islands)
+- **Database**: SQLite (via better-sqlite3)
+- **Auth**: Lucia Auth (v3)
+- **Search**: FlexSearch
+- **Styling**: Vanilla CSS (CSS Variables, modular architecture). NO TailwindCSS.
+- **Markdown**: Remark/Rehype ecosystem (support for GFM, Wikilinks, Mermaid, Excalidraw).
+
+# Coding Standards
+- **TypeScript**: Strict mode enabled. Always define interfaces for component props and data models.
+- **Astro Patterns**:
+  - Use `.astro` files for pages and static layouts.
+  - Use React components ONLY for interactive elements (using `client:*` directives).
+  - Leverage Astro's Server-Side Rendering (SSR) capabilities; minimize client-side JS.
+  - Place server-side logic in the frontmatter (change-fenced code block at the top).
+- **Styling**:
+  - Use modern Vanilla CSS with CSS Variables for theming.
+  - Use scoped `<style>` blocks in Astro components.
+  - focus on "Premium" aesthetics: smooth transitions, good typography, consistent spacing.
+- **Database**:
+  - Use `better-sqlite3` for direct database interactions.
+  - Ensure all queries are parameterized.
+  - Store the database file in a location persistent across deployments if possible (or configured via ENV).
+
+# Key Features Implementation Guidelines
+- **Vault Sync**: Using `simple-git`. ensure operations are safe and handle conflicts gracefully (prefer simple "pull" for read-only view).
+- **Search**: fast, client-side or hybrid search using `flexsearch`.
+- **Markdown**: Parsing should handle Obsidian-specific syntax (callouts, wikilinks `[[Link]]`, embeds).
+
+# File Structure
+- `src/pages`: Application routes.
+- `src/components`: Reusable UI components (Astro & React).
+- `src/lib`: Shared utilities, database queries, and auth logic.
+- `src/layouts`: Page layouts.
