@@ -16,7 +16,6 @@
     "astro": "^5.16.4",
     "bcrypt": "^6.0.0",
     "better-sqlite3": "^11.5.0",
-    "excalidraw": "^0.6.4",
     "flexsearch": "^0.7.43",
     "github-slugger": "^2.0.0",
     "gray-matter": "^4.0.3",
