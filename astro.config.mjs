@@ -14,5 +14,9 @@ export default defineConfig({
     optimizeDeps: {
       exclude: ['lucia']
     }
+  },
+  // Disable content collections since we don't use them
+  experimental: {
+    contentCollectionCache: false
   }
 });
