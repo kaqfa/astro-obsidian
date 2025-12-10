@@ -1,9 +1,11 @@
 ---
 import MainLayout from "../layouts/MainLayout.astro";
 import { lucia } from "../lib/auth";
-import { db } from "../lib/auth";
+import { db } from "../lib/db";
+import { userTable } from "../lib/db/schema";
 import { validateSession } from "../lib/middleware";
 import * as bcrypt from "bcrypt";
+import { eq } from "drizzle-orm";
 
 const { user } = await validateSession(Astro.cookies);
 
@@ -21,16 +23,19 @@ if (Astro.request.method === "POST") {
   if (!username || !password) {
     error = "Username dan password harus diisi";
   } else {
-    const user = db
-      .prepare("SELECT * FROM user WHERE username = ?")
-      .get(username) as any;
+    const users = await db
+      .select()
+      .from(userTable)
+      .where(eq(userTable.username, username));
+
+    const foundUser = users[0];
 
     const isValidPassword =
-      user && (await bcrypt.compare(password, user.password_hash));
+      foundUser && (await bcrypt.compare(password, foundUser.passwordHash));
     if (!isValidPassword) {
       error = "Username atau password salah";
     } else {
-      const session = await lucia.createSession(user.id, {});
+      const session = await lucia.createSession(foundUser.id, {});
       const sessionCookie = lucia.createSessionCookie(session.id);
       Astro.cookies.set(
         sessionCookie.name,

@@ -1,7 +1,9 @@
-import Database from 'better-sqlite3';
 import { generateId } from 'lucia';
 import * as readline from 'readline';
 import * as bcrypt from 'bcrypt';
+import { db } from './src/lib/db';
+import { userTable } from './src/lib/db/schema';
+import { eq } from 'drizzle-orm';
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -13,20 +15,8 @@ function question(query: string): Promise<string> {
 }
 
 async function setup() {
-  const db = new Database('auth.db');
-
-  db.exec(`CREATE TABLE IF NOT EXISTS user (
-    id TEXT NOT NULL PRIMARY KEY,
-    username TEXT NOT NULL UNIQUE,
-    password_hash TEXT NOT NULL
-  )`);
-
-  db.exec(`CREATE TABLE IF NOT EXISTS session (
-    id TEXT NOT NULL PRIMARY KEY,
-    expires_at INTEGER NOT NULL,
-    user_id TEXT NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES user(id)
-  )`);
+  // Create tables (Turso will auto-create from schema)
+  console.log('🔧 Setting up database...\n');
 
   const username = await question('Username: ');
   const password = await question('Password: ');
@@ -34,8 +24,20 @@ async function setup() {
   const userId = generateId(15);
   const hashedPassword = await bcrypt.hash(password, 10);
   
-  db.prepare('INSERT INTO user (id, username, password_hash) VALUES (?, ?, ?)')
-    .run(userId, username, hashedPassword);
+  // Check if user already exists
+  const existingUser = await db.select().from(userTable).where(eq(userTable.username, username));
+  
+  if (existingUser.length > 0) {
+    console.log('\n❌ User with this username already exists!');
+    rl.close();
+    process.exit(1);
+  }
+
+  await db.insert(userTable).values({
+    id: userId,
+    username,
+    passwordHash: hashedPassword
+  });
 
   console.log('\n✅ User created successfully!');
   console.log('You can now login with these credentials.');

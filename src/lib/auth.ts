@@ -1,26 +1,9 @@
 import { Lucia } from "lucia";
-import { BetterSqlite3Adapter } from "@lucia-auth/adapter-sqlite";
-import Database from "better-sqlite3";
+import { DrizzleSQLiteAdapter } from "@lucia-auth/adapter-drizzle";
+import { db } from "./db";
+import { userTable, sessionTable } from "./db/schema";
 
-const db = new Database("auth.db");
-
-db.exec(`CREATE TABLE IF NOT EXISTS user (
-    id TEXT NOT NULL PRIMARY KEY,
-    username TEXT NOT NULL UNIQUE,
-    password_hash TEXT NOT NULL
-)`);
-
-db.exec(`CREATE TABLE IF NOT EXISTS session (
-    id TEXT NOT NULL PRIMARY KEY,
-    expires_at INTEGER NOT NULL,
-    user_id TEXT NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES user(id)
-)`);
-
-const adapter = new BetterSqlite3Adapter(db, {
-  user: "user",
-  session: "session"
-});
+const adapter = new DrizzleSQLiteAdapter(db, sessionTable, userTable);
 
 export const lucia = new Lucia(adapter, {
   sessionCookie: {

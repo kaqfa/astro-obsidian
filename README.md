@@ -21,7 +21,17 @@ Web-based Obsidian vault viewer dengan Astro SSR. Read-only access dengan sync d
 npm install
 ```
 
-### 2. Setup User
+### 2. Setup Database
+
+Jalankan migration untuk membuat tables:
+
+```bash
+npx tsx migrate.ts
+```
+
+> **Note**: Untuk production dengan Turso, lihat [docs/TURSO_SETUP.md](docs/TURSO_SETUP.md)
+
+### 3. Setup User
 
 Buat user pertama untuk login:
 
@@ -31,7 +41,7 @@ npx tsx setup.ts
 
 Masukkan username dan password.
 
-### 3. Clone Vault
+### 4. Clone Vault
 
 Ada 2 cara:
 
@@ -48,7 +58,7 @@ cp .env.example .env
 # Edit .env, isi GIT_REPO_URL
 ```
 
-### 3b. Setup Private Repo (GitLab/GitHub)
+### 4b. Setup Private Repo (GitLab/GitHub)
 
 Jika menggunakan private repository, Anda memerlukan Personal Access Token (PAT).
 
