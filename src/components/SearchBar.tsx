@@ -43,7 +43,7 @@ export default function SearchBar({ notes }: Props) {
 
     const searchResults = index.search(value);
     const matched = searchResults
-      .map((idx) => notes[idx as number])
+      .map((idx: any) => notes[idx as number])
       .slice(0, 5);
 
     setResults(matched);

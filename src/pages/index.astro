@@ -60,7 +60,7 @@ const tree = await getFileTree();
         <div
           class="text-4xl font-bold text-accent group-hover:text-accent-hover transition-colors"
         >
-          {tree.children?.filter((c) => c.isFolder).length || 0}
+          {tree.filter((c: any) => c.type === "folder").length || 0}
         </div>
         <div class="text-sm text-text-muted mt-1">Top-level Folders</div>
       </div>
