@@ -10,6 +10,7 @@ auth.db-wal
 
 # Vault folder (jangan di-commit)
 vault/
+deploy/
 
 # OS
 .DS_Store

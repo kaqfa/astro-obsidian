@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  obsidian-web:
+    build: .
+    container_name: obsidian-web
+    restart: unless-stopped
+    ports:
+      - "4321:4321"
+    environment:
+      - NODE_ENV=production
+      - TURSO_DATABASE_URL=${TURSO_DATABASE_URL:-file:local.db}
+      - TURSO_AUTH_TOKEN=${TURSO_AUTH_TOKEN}
+      - GIT_REPO_URL=${GIT_REPO_URL}
+      - GIT_USERNAME=${GIT_USERNAME}
+      - GIT_TOKEN=${GIT_TOKEN}
+    volumes:
+      # Persist database
+      - ./data:/app/data
+      # Persist vault (jika ingin vault tetap ada saat container restart)
+      - ./vault:/app/vault
+      # Persist logs
+      - ./logs:/app/logs
+    networks:
+      - obsidian-network
+
+networks:
+  obsidian-network:
+    driver: bridge
