@@ -7,6 +7,7 @@ dist/
 auth.db
 auth.db-shm
 auth.db-wal
+*.db
 
 # Vault folder (jangan di-commit)
 vault/
