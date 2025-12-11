@@ -251,43 +251,643 @@ nginx → PM2 Cluster → Astro Server (multiple instances)
 
 ---
 
-## 8. Future Considerations
+## 8. Product Roadmap
 
-### 8.1 Phase 3 (Potential Features)
+### Current State: v2.0 ✅
 
-- Multi-user support dengan role-based access
-- Auto-sync via webhooks
-- Collaborative annotations
-- Export to PDF/EPUB
-- Full-text search dengan highlight
-- Graph view (network visualization)
-- Mobile app (PWA)
-- Content analytics
-
-### 8.2 Technical Debt
-
-- Add comprehensive unit tests
-- Set up CI/CD pipeline
-- Performance monitoring (Sentry, LogRocket)
-- Automated backups
-- Health check endpoints
+**Status:** Production-ready  
+**Focus:** Personal knowledge base access  
+**Positioning:** "Modern Obsidian Web Viewer"
 
 ---
 
-## 9. Conclusion
+## 9. Future Development
 
-Obsidian Web Viewer v2.0 berhasil mencapai tujuan utama:
+### 🎯 Priority 1: Content Experience Enhancement
 
-1. ✅ Modern, elegant UI dengan dark theme
-2. ✅ SPA-like experience tanpa kompleksitas framework besar
-3. ✅ Edge-compatible deployment (Turso)
-4. ✅ Multiple deployment options (Passenger, Docker, PM2)
-5. ✅ Code syntax highlighting dan ToC untuk developer experience
-6. ✅ Simple setup process (<10 menit untuk expert user)
+#### 9.1 Graph View
 
-Aplikasi ini sekarang production-ready dan deployment-flexible, cocok untuk personal use hingga small team knowledge base.
+**Timeline:** v2.1-2.2  
+**Effort:** High  
+**Value:** High
+
+**Features:**
+
+- Interactive network visualization (D3.js or Cytoscape)
+- Node represents notes, edges represent wikilinks
+- Click node to navigate to note
+- Filter by tags, folders, date range
+- Layout algorithms: force-directed, hierarchical, circular
+- Zoom, pan, search in graph
+- Highlight note connections (1st, 2nd degree)
+
+**Technical:**
+
+- Build graph data from wikilinks
+- Client-side rendering for performance
+- WebGL acceleration for large graphs (>1000 nodes)
+
+**Use Cases:**
+
+- Discover hidden connections
+- Visual knowledge mapping
+- Find orphan notes
+- Identify knowledge clusters
 
 ---
+
+#### 9.2 Tag System
+
+**Timeline:** v2.1  
+**Effort:** Medium  
+**Value:** High
+
+**Features:**
+
+- Extract tags from frontmatter (`tags: [tag1, tag2]`)
+- Parse inline tags (`#tag`)
+- Tag browser/explorer sidebar
+- Filter notes by tags (AND/OR logic)
+- Tag cloud visualization (weighted by frequency)
+- Tag autocomplete saat search
+- Tag hierarchy support (`#project/mobile/ios`)
+
+**Technical:**
+
+- Index tags saat vault load
+- Update index on sync
+- Store tag metadata in search index
+
+**Use Cases:**
+
+- Organize notes by topic
+- Quick filtering
+- Content discovery
+
+---
+
+#### 9.3 Backlinks Panel
+
+**Timeline:** v2.1  
+**Effort:** Medium  
+**Value:** High
+
+**Features:**
+
+- Show notes yang link ke current note
+- Extract context around link (preview sentence)
+- Clickable backlinks
+- Count backlinks
+- Unlinked mentions (notes yang mention tapi belum di-link)
+
+**Technical:**
+
+- Build reverse index dari wikilinks
+- Search note titles dalam content
+- Display dengan context highlight
+
+**Use Cases:**
+
+- Find related content
+- Understand note importance (hub notes)
+- Bidirectional linking
+
+---
+
+#### 9.4 Recent Notes
+
+**Timeline:** v2.1  
+**Effort:** Low  
+**Value:** Medium
+
+**Features:**
+
+- Recent 10 notes viewed
+- Sort by last accessed atau view count
+- Quick access dari sidebar/dashboard
+- Clear history option
+
+**Technical:**
+
+- Store di localStorage (single user)
+- Or database table (multi-user ready)
+- Update on note view
+
+**Use Cases:**
+
+- Quick navigation
+- Resume reading
+- Frequently accessed notes
+
+---
+
+### 🚀 Priority 2: Enhanced Features
+
+#### 9.5 Advanced Search
+
+**Timeline:** v2.2  
+**Effort:** Medium  
+**Value:** High
+
+**Features:**
+
+- Search in tags, frontmatter fields
+- Regex pattern support
+- Boolean operators (AND, OR, NOT)
+- Search syntax: `tag:project path:folder/ "exact phrase"`
+- Search result context preview
+- Highlight matches dalam preview
+- Search history dengan suggestions
+
+**Technical:**
+
+- Extend FlexSearch indexing
+- Query parser untuk advanced syntax
+- Ranking algorithm improvement
+
+**Use Cases:**
+
+- Precise content discovery
+- Complex queries
+- Research tasks
+
+---
+
+#### 9.6 Note Templates
+
+**Timeline:** v2.2  
+**Effort:** Medium  
+**Value:** Medium
+
+**Features:**
+
+- Create note from template
+- Template library/manager
+- Variable substitution:
+  - `{{date}}` - Current date
+  - `{{time}}` - Current time
+  - `{{title}}` - Note title
+  - Custom vars
+- Template categories
+
+**Technical:**
+
+- Store templates as markdown files
+- Template engine (mustache/handlebars)
+- UI untuk template selection
+
+**Use Cases:**
+
+- Consistent note structure
+- Meeting notes, daily notes
+- Project templates
+
+---
+
+#### 9.7 Export Options
+
+**Timeline:** v2.3  
+**Effort:** High  
+**Value:** Medium
+
+**Features:**
+
+- Export single note as PDF/HTML
+- Export folder/vault as static site
+- Print-friendly view (clean CSS)
+- Preserve wikilinks, diagrams
+- Custom export templates
+
+**Technical:**
+
+- PDF: Puppeteer headless browser
+- HTML: Clean template dengan assets
+- Static site: Generate with navigation
+
+**Use Cases:**
+
+- Sharing notes externally
+- Offline reading
+- Archival
+
+---
+
+#### 9.8 Multi-user Support
+
+**Timeline:** v2.3-2.4  
+**Effort:** Very High  
+**Value:** High
+
+**Features:**
+
+- User management (create, edit, delete)
+- Role-based access:
+  - Admin: Full access
+  - Editor: Edit notes
+  - Reader: Read-only
+- Per-folder permissions
+- Per-note visibility control
+- User activity log
+- User profiles
+
+**Technical:**
+
+- User table expansion
+- Permission system in database
+- Middleware untuk authorization
+- Audit logging
+
+**Use Cases:**
+
+- Team knowledge base
+- Client documentation access
+- Educational content sharing
+
+---
+
+### 🔧 Priority 3: Developer Experience
+
+#### 9.9 REST API
+
+**Timeline:** v2.4  
+**Effort:** High  
+**Value:** Medium
+
+**Endpoints:**
+
+- `GET /api/notes` - List notes
+- `GET /api/notes/:slug` - Get note
+- `GET /api/search?q=query` - Search
+- `POST /api/webhooks/sync` - Trigger sync
+- `GET /api/tags` - List tags
+- `GET /api/graph` - Graph data
+
+**Security:**
+
+- API key authentication
+- Rate limiting (per key)
+- Key management UI
+
+**Use Cases:**
+
+- External integrations
+- Custom clients
+- Automation workflows
+
+---
+
+#### 9.10 Plugin System
+
+**Timeline:** v2.5  
+**Effort:** Very High  
+**Value:** High
+
+**Features:**
+
+- Plugin SDK/API
+- Custom remark/rehype plugins
+- Custom UI components
+- Hooks:
+  - `beforeRender`, `afterRender`
+  - `beforeSync`, `afterSync`
+  - `onSearch`
+- Plugin manager UI
+- Plugin marketplace (future)
+
+**Technical:**
+
+- Plugin isolation/sandboxing
+- ESM module loading
+- Plugin configuration
+- Version compatibility checks
+
+**Use Cases:**
+
+- Custom markdown syntax
+- Third-party integrations
+- Community extensions
+
+---
+
+## 10. Quality Improvements
+
+### 10.1 Performance Optimizations
+
+| Improvement                      | Priority | Effort | Impact |
+| -------------------------------- | -------- | ------ | ------ |
+| Lazy loading images              | High     | Low    | Medium |
+| Virtual scrolling (file tree)    | Medium   | Medium | High   |
+| Code splitting by route          | High     | Medium | High   |
+| Service Worker caching           | Medium   | High   | High   |
+| Debounced search                 | High     | Low    | Medium |
+| Infinite scroll (search results) | Low      | Medium | Medium |
+
+### 10.2 Security Enhancements
+
+| Improvement                    | Priority | Effort | Impact   |
+| ------------------------------ | -------- | ------ | -------- |
+| Rate limiting (login/sync)     | High     | Medium | High     |
+| CSRF protection                | High     | Low    | High     |
+| Content Security Policy        | High     | Low    | Medium   |
+| Input sanitization (DOMPurify) | High     | Low    | High     |
+| SQL injection prevention       | High     | Low    | Critical |
+| XSS prevention                 | High     | Low    | Critical |
+
+### 10.3 Developer Experience
+
+| Improvement               | Priority | Effort | Impact |
+| ------------------------- | -------- | ------ | ------ |
+| React Error Boundaries    | Medium   | Low    | Medium |
+| Structured logging (Pino) | Medium   | Medium | High   |
+| Error tracking (Sentry)   | Low      | Low    | High   |
+| Unit tests (Vitest)       | High     | High   | High   |
+| E2E tests (Playwright)    | Medium   | High   | High   |
+| CI/CD pipeline            | High     | Medium | High   |
+| Code coverage reports     | Low      | Low    | Medium |
+
+### 10.4 UX Polish
+
+| Improvement                  | Priority | Effort | Impact |
+| ---------------------------- | -------- | ------ | ------ |
+| Skeleton loading states      | High     | Low    | Medium |
+| Empty states dengan guidance | High     | Low    | Medium |
+| Keyboard shortcuts (Cmd+K)   | High     | Medium | High   |
+| Mobile touch gestures        | Medium   | Medium | High   |
+| ARIA labels                  | High     | Medium | High   |
+| Screen reader support        | Medium   | Medium | Medium |
+| Dark/Light mode toggle       | High     | Low    | High   |
+| Font size adjustment         | Low      | Low    | Medium |
+
+---
+
+## 11. Major Version Milestones
+
+### v3.0: Social & Collaboration (3-6 bulan)
+
+**Theme:** "From Personal to Shared Knowledge"  
+**Target:** Q2-Q3 2025
+
+**Core Features:**
+
+- ✅ Multi-user dengan granular permissions
+- ✅ Commenting system pada notes
+- ✅ Change tracking & version history
+- ⏳ Collaborative editing (via CRDTs/OT)
+
+**Technical Stack:**
+
+- WebSocket (Socket.io) untuk real-time
+- Conflict resolution strategy
+- User activity feed
+- Notification system
+
+**Use Cases:**
+
+- Team documentation dengan discussion
+- Peer review process
+- Knowledge sharing dalam organization
+- Collaborative research
+
+**Success Metrics:**
+
+- Support 50+ concurrent users
+- Real-time latency <100ms
+- 99.5% uptime
+
+---
+
+### v3.5: Intelligence & Discovery (6-9 bulan)
+
+**Theme:** "Smart Knowledge Management"  
+**Target:** Q4 2025
+
+**Core Features:**
+
+- ✅ Graph analysis (centrality, clusters, communities)
+- ✅ AI-powered semantic search (embeddings)
+- ✅ Auto-tagging & categorization
+- ✅ Related notes recommendations
+- ✅ Smart backlinks (context-aware)
+
+**Technical Stack:**
+
+- Vector database (Turso AI / Pinecone)
+- ML models (OpenAI embeddings atau open-source)
+- Graph algorithms (NetworkX / Graphology)
+- Recommendation engine
+
+**Use Cases:**
+
+- Research note organization
+- Knowledge discovery & serendipity
+- Content recommendation
+- Automated taxonomy
+
+**Success Metrics:**
+
+- Search relevance >85% accuracy
+- Recommendation CTR >20%
+- Auto-tag precision >80%
+
+---
+
+### v4.0: Platform & Ecosystem (9-12 bulan)
+
+**Theme:** "Extensible Knowledge Platform"  
+**Target:** Q1-Q2 2026
+
+**Core Features:**
+
+- ✅ Plugin marketplace
+- ✅ Theme customization system
+- ✅ Webhook & integrations (Slack, Discord, Notion, Zapier)
+- ✅ Public API dengan SDK (JS, Python, Go)
+- ✅ Mobile apps (React Native/Capacitor)
+
+**Technical Stack:**
+
+- Plugin SDK & comprehensive docs
+- Sandboxed plugin runtime (Web Workers)
+- OAuth 2.0 provider
+- Native mobile builds (iOS, Android)
+- GraphQL API (future consideration)
+
+**Use Cases:**
+
+- Custom workflows via plugins
+- Integration dengan existing tools
+- Mobile-first knowledge access
+- Third-party app development
+
+**Success Metrics:**
+
+- 100+ plugins available
+- 10,000+ API calls/day
+- Mobile app 4.5+ star rating
+- SDK adoption by 3rd parties
+
+---
+
+## 12. Quick Wins (v2.1)
+
+Low-effort, high-impact improvements:
+
+| Feature                           | Effort | Impact | Timeline |
+| --------------------------------- | ------ | ------ | -------- |
+| Dark/Light mode toggle            | Low    | High   | 1 week   |
+| Font size adjustment              | Low    | Medium | 3 days   |
+| Reading mode (hide sidebar)       | Low    | High   | 1 week   |
+| Copy code button                  | Low    | High   | 3 days   |
+| Note metadata (dates, word count) | Low    | Medium | 1 week   |
+| Breadcrumb navigation             | Low    | High   | 1 week   |
+| Search history                    | Low    | Medium | 3 days   |
+| Favorites/Bookmarks               | Medium | High   | 2 weeks  |
+| Print stylesheet                  | Low    | Medium | 2 days   |
+| Scroll to top button              | Low    | Low    | 1 day    |
+
+**Total v2.1 Timeline:** 2-3 months
+
+---
+
+## 13. Positioning Strategy Evolution
+
+### Current: v2.x - "Obsidian Web Viewer"
+
+**Positioning:** Modern, self-hosted alternative to Obsidian Publish  
+**Audience:** Individual knowledge workers, developers, researchers  
+**Pricing:** Free, open-source  
+**Value Prop:** Full control, zero subscription cost, modern UI
+
+### Future: v3.x - "Collaborative Knowledge Platform"
+
+**Positioning:** Team knowledge base dengan real-time collaboration  
+**Audience:** Small teams (5-50 people), research groups, agencies  
+**Pricing:**
+
+- Free tier: 3 users
+- Pro: $5/user/month (self-hosted) or $10/user/month (cloud)
+  **Value Prop:** Seamless collaboration, version control, team permissions
+
+### Long-term: v4.x - "Knowledge Management Ecosystem"
+
+**Positioning:** Enterprise-ready, extensible platform  
+**Audience:** Organizations (50+ employees), SaaS customers, developers  
+**Pricing:**
+
+- Community: Free (self-hosted)
+- Business: $15/user/month
+- Enterprise: Custom pricing
+  **Value Prop:** Ecosystem, integrations, API, mobile apps, support
+
+---
+
+## 14. Competitive Landscape
+
+### Direct Competitors
+
+| Product          | Strengths           | Weaknesses            | Our Advantage              |
+| ---------------- | ------------------- | --------------------- | -------------------------- |
+| Obsidian Publish | Native integration  | $8-16/month           | Free, self-hosted          |
+| Notion           | Collaboration       | Not markdown-native   | Markdown-first, Git-backed |
+| Confluence       | Enterprise features | Complex, expensive    | Simpler, modern UI         |
+| GitBook          | Beautiful docs      | Limited customization | Full control, extensible   |
+| Docusaurus       | Free, static        | No dynamic features   | Dynamic, search, auth      |
+
+### Our Unique Position
+
+1. **Markdown + Git Native** - True to Obsidian philosophy
+2. **Self-hosted First** - Full data ownership
+3. **Modern Tech Stack** - Astro, React, Tailwind
+4. **Edge-Compatible** - Deploy anywhere (Turso)
+5. **Extensible** - Plugin system (future)
+
+---
+
+## 15. Success Metrics & KPIs
+
+### Technical Metrics
+
+- **Performance:** Page load <2s, Search <500ms
+- **Uptime:** 99.9% availability
+- **Security:** Zero critical vulnerabilities
+- **Build Time:** <30s for CI/CD
+
+### User Metrics (v2.x)
+
+- **Adoption:** 1,000 self-hosted instances
+- **GitHub Stars:** 500+
+- **Docker Pulls:** 5,000+
+- **Documentation Views:** 10,000/month
+
+### User Metrics (v3.x)
+
+- **Active Users:** 10,000
+- **Team Accounts:** 100
+- **Monthly Active Users:** 5,000
+- **Average Session:** 15 minutes
+
+### User Metrics (v4.x)
+
+- **Platform Users:** 100,000
+- **API Calls:** 1M/day
+- **Plugins Installed:** 50,000
+- **Mobile Downloads:** 10,000
+
+---
+
+## 16. Technical Debt & Risks
+
+### Current Technical Debt
+
+1. **No automated testing** - Risk: Regression bugs
+2. **No error monitoring** - Risk: Silent failures
+3. **Manual deployment** - Risk: Human error
+4. **No backup strategy** - Risk: Data loss
+
+### Mitigation Plan
+
+- Q1 2025: Setup Vitest + Playwright
+- Q1 2025: Integrate Sentry
+- Q2 2025: CI/CD pipeline
+- Q2 2025: Automated backups
+
+### Risks & Mitigation
+
+| Risk                      | Probability | Impact   | Mitigation                          |
+| ------------------------- | ----------- | -------- | ----------------------------------- |
+| Obsidian API changes      | Medium      | High     | Monitor releases, version lock      |
+| Turso pricing changes     | Low         | Medium   | Support local SQLite fallback       |
+| Competition from Obsidian | High        | High     | Focus on self-hosted, extensibility |
+| Scalability limits        | Medium      | High     | Load testing, optimization          |
+| Security breach           | Low         | Critical | Regular audits, penetration testing |
+
+---
+
+## 17. Conclusion
+
+Obsidian Web Viewer v2.0 successfully delivers a modern, self-hosted alternative to Obsidian Publish. The roadmap to v4.0 positions the project to evolve from a **personal tool** to a **collaborative platform** to a full **knowledge management ecosystem**.
+
+**Key Strengths:**
+
+- ✅ Modern tech stack (Astro, React, Tailwind, Turso)
+- ✅ Multiple deployment options
+- ✅ Edge-compatible database
+- ✅ Strong foundation for future features
+
+**Next Steps:**
+
+1. **v2.1** (Q1 2025): Quick wins + Content experience (Graph, Tags, Backlinks)
+2. **v2.2-2.4** (Q2 2025): Enhanced features (Advanced search, Templates, Multi-user)
+3. **v3.0** (Q3 2025): Collaboration features
+4. **v4.0** (2026): Platform & ecosystem
+
+The vision is clear: **Make knowledge sharing as effortless as knowledge creation.**
+
+---
+
+_Last updated: December 2024_  
+_Version: 2.0_  
+_Next review: Q1 2025_
 
 ## Appendix: Tech Stack Summary
 
