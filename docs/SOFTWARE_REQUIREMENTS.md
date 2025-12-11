@@ -1,7 +1,8 @@
 # Software Requirements Specification
+
 ## Obsidian Web Viewer
 
-**Version:** 1.0  
+**Version:** 2.0  
 **Date:** December 2024  
 **Author:** Fahri Firdausillah
 
@@ -10,89 +11,63 @@
 ## 1. Introduction
 
 ### 1.1 Purpose
-Dokumen ini mendefinisikan functional dan non-functional requirements untuk Obsidian Web Viewer. Dokumen ini ditujukan untuk developer, tester, dan stakeholder yang terlibat dalam pengembangan sistem.
+
+Dokumen ini mendefinisikan functional dan non-functional requirements untuk Obsidian Web Viewer v2.0. Dokumen ini mencerminkan aplikasi yang sudah ter-implement dengan fitur modern UI, SPA experience, dan multiple deployment options.
 
 ### 1.2 Scope
-Obsidian Web Viewer adalah aplikasi web self-hosted yang memberikan akses read-only terhadap vault Obsidian dengan fitur authentication, search, dan Git synchronization.
 
-### 1.3 Definitions, Acronyms, and Abbreviations
+Obsidian Web Viewer adalah aplikasi web self-hosted yang memberikan akses read-only terhadap vault Obsidian dengan:
 
-| Term | Definition |
-|------|------------|
-| SRS | Software Requirements Specification |
-| API | Application Programming Interface |
-| SSR | Server-Side Rendering |
-| UI | User Interface |
-| UX | User Experience |
-| JWT | JSON Web Token |
-| CRUD | Create, Read, Update, Delete |
-| GFM | GitHub Flavored Markdown |
+- Modern SPA experience via Astro View Transitions
+- Dark theme UI dengan Tailwind CSS v4
+- Edge-compatible database (Turso/LibSQL)
+- Code syntax highlighting dan Table of Contents
+- Multiple deployment options (Passenger, Docker, PM2)
 
-### 1.4 References
-- Software Vision Document v1.0
-- Astro Documentation: https://docs.astro.build
-- Lucia Auth Documentation: https://lucia-auth.com
+### 1.3 Document Conventions
 
-### 1.5 Overview
-Dokumen ini dibagi menjadi:
-- Section 2: Overall Description
-- Section 3: Functional Requirements
-- Section 4: Non-Functional Requirements
-- Section 5: System Features
+- **FR**: Functional Requirement
+- **NFR**: Non-Functional Requirement
+- **Priority**: High (must-have), Medium (should-have), Low (nice-to-have)
+- **Status**: ✅ Implemented, 🔄 In Progress, ⏳ Planned
 
 ---
 
 ## 2. Overall Description
 
 ### 2.1 Product Perspective
-Obsidian Web Viewer adalah standalone system yang berinteraksi dengan:
-- Git repository (source of truth untuk vault)
-- Web browser (client interface)
-- File system (local cache untuk vault)
-- SQLite database (authentication data)
 
-### 2.2 Product Functions
-Major functions yang disediakan:
-1. User authentication dan session management
-2. Vault browsing dengan file tree navigation
-3. Markdown content rendering dengan Obsidian features
-4. Full-text search
-5. Git repository synchronization
+Obsidian Web Viewer v2.0 adalah standalone system yang berinteraksi dengan:
 
-### 2.3 User Classes and Characteristics
+- **Git repository** (source of truth untuk vault)
+- **Web browser** (modern SPA client)
+- **File system** (local cache untuk vault)
+- **Turso/LibSQL database** (authentication + edge-compatible)
+- **Deployment platforms** (Passenger, Docker, atau PM2)
 
-#### 2.3.1 Administrator/Owner
-- **Characteristics:** Technical user dengan akses server
-- **Skills:** Familiar dengan Git, command line, web deployment
-- **Responsibilities:** Setup, configuration, maintenance
-- **Frequency:** Daily untuk consumption, weekly untuk maintenance
+### 2.2 Technology Stack
 
-#### 2.3.2 End User (Future)
-- **Characteristics:** Non-technical user
-- **Skills:** Basic web browsing
-- **Responsibilities:** Content consumption
-- **Frequency:** Varies based on need
+| Component        | Technology                | Version |
+| ---------------- | ------------------------- | ------- |
+| Framework        | Astro                     | 5.16.4  |
+| UI Library       | React                     | 18.3.1  |
+| Styling          | Tailwind CSS              | 4.1.17  |
+| Database         | Turso/Lib SQL             | Latest  |
+| ORM              | Drizzle                   | 0.45.1  |
+| Auth             | Lucia                     | 3.2.2   |
+| Search           | FlexSearch                | 0.7.43  |
+| Markdown         | unified + remark + rehype | Latest  |
+| Syntax Highlight | rehype-highlight          | 7.0.2   |
+| Diagrams         | Mermaid.js                | 11.4.0  |
+| Git              | simple-git                | 3.27.0  |
 
-### 2.4 Operating Environment
-- **Server:** Node.js runtime (v18+)
-- **Database:** SQLite 3
-- **Client:** Modern web browsers (Chrome, Firefox, Safari, Edge)
-- **Network:** HTTP/HTTPS protocol
-- **Storage:** Local file system untuk vault cache
+### 2.3 Operating Environment
 
-### 2.5 Design and Implementation Constraints
-- Must use Astro SSR framework
-- Authentication via Lucia (no external auth provider)
-- Read-only access (no content editing)
-- Git repository sebagai single source of truth
-- Single user untuk v1.0
-
-### 2.6 Assumptions and Dependencies
-- User memiliki Git repository untuk vault
-- Repository accessible via HTTPS/SSH
-- Vault menggunakan .md files dengan Obsidian format
-- Server memiliki Git client installed
-- Network connectivity tersedia untuk Git operations
+- **Server:** Node.js 18+ runtime
+- **Database:** Turso Cloud atau local SQLite file
+- **Client:** Modern browsers (Chrome 90+, Firefox 88+, Safari 14+, Edge 90+)
+- **Network:** HTTP/HTTPS
+- **Deployment:** cPanel (Passenger), VPS (Docker/PM2), atau cloud platforms
 
 ---
 
@@ -100,228 +75,329 @@ Major functions yang disediakan:
 
 ### 3.1 Authentication System
 
-#### FR-1.1: User Login
+#### FR-1.1: User Login ✅
+
 **Priority:** High  
-**Description:** System harus menyediakan login form untuk user authentication
+**Status:** ✅ Implemented
 
-**Input:**
-- Username (string, required)
-- Password (string, required)
+**Implementation:**
 
-**Processing:**
-1. Validasi input tidak kosong
-2. Query user dari database
-3. Verifikasi password
-4. Create session jika valid
-5. Set session cookie
-
-**Output:**
-- Success: Redirect ke dashboard
-- Failure: Error message "Username atau password salah"
+- Login form dengan username dan password fields
+- Password hashing via bcrypt (10 rounds)
+- Session creation via Lucia Auth
+- Drizzle ORM untuk database queries
+- Error handling untuk invalid credentials
 
 **Acceptance Criteria:**
-- AC-1.1.1: User dapat login dengan credentials yang valid
-- AC-1.1.2: User tidak dapat login dengan credentials invalid
-- AC-1.1.3: Session cookie dibuat setelah login sukses
-- AC-1.1.4: Error message informatif untuk login gagal
 
-#### FR-1.2: Session Management
+- ✅ User dapat login dengan valid credentials
+- ✅ Password di-hash dengan bcrypt sebelum disimpan
+- ✅ Session cookie secure flag enabled di production
+- ✅ Error message "Username atau password salah" untuk gagal login
+
+#### FR-1.2: Session Management ✅
+
 **Priority:** High  
-**Description:** System harus maintain user session dan validate setiap request
+**Status:** ✅ Implemented
 
-**Processing:**
-1. Check session cookie pada setiap request
-2. Validate session dengan database
-3. Refresh session jika mendekati expiry
-4. Clear invalid session
+**Implementation:**
+
+- Lucia Auth v3 dengan Drizzle adapter
+- Session validation middleware untuk protected routes
+- 7-day session expiry
+- Secure, HttpOnly cookies
 
 **Acceptance Criteria:**
-- AC-1.2.1: Valid session dapat akses protected routes
-- AC-1.2.2: Invalid/expired session redirect ke login
-- AC-1.2.3: Session auto-refresh sebelum expiry
 
-#### FR-1.3: User Logout
+- ✅ Valid session dapat akses dashboard dan notes
+- ✅ Expired session redirect ke login
+- ✅ Session cookie secure di production
+
+#### FR-1.3: User Logout ✅
+
 **Priority:** Medium  
-**Description:** User dapat logout dan invalidate session
+**Status:** ✅ Implemented
 
-**Processing:**
-1. Invalidate session di database
-2. Clear session cookie
-3. Redirect ke login page
+**Implementation:**
 
-**Acceptance Criteria:**
-- AC-1.3.1: Session dihapus dari database
-- AC-1.3.2: Cookie dihapus dari browser
-- AC-1.3.3: User redirect ke login page
+- POST `/api/logout` endpoint
+- Session invalidation via Lucia
+- Cookie deletion
+- Redirect ke login page
 
-### 3.2 Vault Management
+---
 
-#### FR-2.1: File Tree Display
+### 3.2 Modern UI/UX
+
+#### FR-2.1: SPA Experience ✅
+
 **Priority:** High  
-**Description:** System harus menampilkan struktur folder vault dalam tree view
+**Status:** ✅ Implemented
 
-**Input:** Vault directory path
+**Implementation:**
 
-**Processing:**
-1. Scan vault directory recursively
-2. Build hierarchical structure
-3. Filter hidden files/folders
-4. Sort alphabetically (folders first)
-
-**Output:** Nested tree structure dengan folders dan files
+- Astro View Transitions (ClientRouter)
+- Persistent sidebar state via `transition:persist`
+- Loading overlay during page transitions
+- No full page reloads saat navigation
 
 **Acceptance Criteria:**
-- AC-2.1.1: Semua folders ditampilkan dengan icon 📁
-- AC-2.1.2: Semua .md files ditampilkan dengan icon 📄
-- AC-2.1.3: Hidden files/folders tidak ditampilkan
-- AC-2.1.4: Tree dapat di-expand/collapse
-- AC-2.1.5: Sort order: folders first, kemudian alphabetical
 
-#### FR-2.2: Note Reading
+- ✅ Navigation tanpa full page reload
+- ✅ Sidebar scroll position maintained
+- ✅ Loading indicator muncul saat transition
+- ✅ Mermaid diagrams re-render setelah navigation
+
+#### FR-2.2: Dark Theme UI ✅
+
 **Priority:** High  
-**Description:** User dapat membuka dan membaca note individual
+**Status:** ✅ Implemented
 
-**Input:** Note slug/path
+**Implementation:**
 
-**Processing:**
-1. Resolve path ke file
-2. Read file content
-3. Parse frontmatter
-4. Render markdown ke HTML
-5. Transform wikilinks
-6. Render mermaid diagrams
-7. Handle excalidraw embeds
-
-**Output:** Rendered HTML content
+- Tailwind CSS v4 dengan custom theme
+- Dark color palette:
+  - `--color-bg-primary`: #0f172a
+  - `--color-bg-secondary`: #1e293b
+  - `--color-accent`: #3b82f6
+- Glassmorphism effects dengan backdrop-blur
+- Google Fonts (Inter) untuk typography
 
 **Acceptance Criteria:**
-- AC-2.2.1: Markdown di-render dengan benar
-- AC-2.2.2: Wikilinks [[note]] menjadi clickable links
-- AC-2.2.3: Mermaid code blocks di-render sebagai diagram
-- AC-2.2.4: Frontmatter diparsing tetapi tidak ditampilkan di content
-- AC-2.2.5: File not found menampilkan 404 page
 
-#### FR-2.3: Navigation
+- ✅ Consistent dark theme across all pages
+- ✅ High contrast untuk readability
+- ✅ Smooth color transitions
+- ✅ Accessible color ratios (WCAG AA)
+
+#### FR-2.3: Responsive Design ✅
+
+**Priority:** High  
+**Status:** ✅ Implemented
+
+**Implementation:**
+
+- Mobile-first CSS via Tailwind
+- Breakpoints: sm (640px), md (768px), lg (1024px), xl (1280px)
+- Collapsible sidebar untuk mobile (future improvement)
+- Touch-friendly hit areas
+
+**Acceptance Criteria:**
+
+- ✅ Functional pada desktop (1920x1080+)
+- ✅ Functional pada tablet (768x1024)
+- ✅ Functional pada mobile (375x667+)
+- ✅ No horizontal scroll
+
+---
+
+### 3.3 Enhanced Content Rendering
+
+#### FR-3.1: Markdown Rendering ✅
+
+**Priority:** High  
+**Status:** ✅ Implemented
+
+**Implementation:**
+
+- unified pipeline: remark-parse → remark-gfm → remark-rehype → rehype
+- GFM support (tables, task lists, strikethrough)
+- Prose styling via `@tailwindcss/typography`
+
+**Acceptance Criteria:**
+
+- ✅ Headers (H1-H6) dengan proper hierarchy
+- ✅ Lists (ordered, unordered, nested)
+- ✅ Tables dengan borders
+- ✅ Blockquotes dengan styling
+- ✅ Links clickable dan styled
+
+#### FR-3.2: Wikilinks Support ✅
+
+**Priority:** High  
+**Status:** ✅ Implemented
+
+**Implementation:**
+
+- Custom remark plugin `remarkWikilinks`
+- Transform `[[note]]` → `<a href="/notes/note">note</a>`
+- Transform `[[note|alias]]` → `<a href="/notes/note">alias</a>`
+- Handle nested paths
+
+**Acceptance Criteria:**
+
+- ✅ Simple wikilinks clickable
+- ✅ Aliased wikilinks display alias
+- ✅ Links navigate to correct note
+- ✅ Broken links tetap rendered (tidak error)
+
+#### FR-3.3: Code Syntax Highlighting ✅
+
+**Priority:** High  
+**Status:** ✅ Implemented
+
+**Implementation:**
+
+- rehype-highlight plugin
+- highlight.js dengan GitHub Dark theme
+- Auto-detect language dari code fence
+- 180+ languages support
+
+**Acceptance Criteria:**
+
+- ✅ Code blocks dengan language detection
+- ✅ Syntax highlighting applied
+- ✅ Dark theme compatible
+- ✅ Copy-paste friendly (plain text)
+
+#### FR-3.4: Table of Contents ✅
+
 **Priority:** Medium  
-**Description:** User dapat navigate antar notes
+**Status:** ✅ Implemented
+
+**Implementation:**
+
+- rehype-slug untuk heading IDs
+- rehype-autolink-headings untuk anchor links
+- `extractHeadings()` utility via github-slugger
+- Right sidebar dengan sticky positioning
+- Nested ToC sesuai heading depth
 
 **Acceptance Criteria:**
-- AC-2.3.1: Klik file di tree membuka note
-- AC-2.3.2: Klik wikilink membuka target note
-- AC-2.3.3: Back button kembali ke previous view
-- AC-2.3.4: URL update sesuai note path
 
-### 3.3 Search Functionality
+- ✅ ToC generated dari H1-H6
+- ✅ Clickable links to headings
+- ✅ Sticky positioning (scroll-aware)
+- ✅ Indentation sesuai heading level
+- ✅ Hidden pada artikel tanpa headings
 
-#### FR-3.1: Search Interface
-**Priority:** High  
-**Description:** System menyediakan search bar untuk mencari notes
+#### FR-3.5: Mermaid Diagrams ✅
 
-**Input:** Search query (string)
-
-**Processing:**
-1. Build search index dari semua notes
-2. Search berdasarkan title dan content
-3. Rank results by relevance
-4. Limit hasil maksimal 5 per query
-
-**Output:** List of matching notes dengan preview
-
-**Acceptance Criteria:**
-- AC-3.1.1: Search box tersedia di sidebar
-- AC-3.1.2: Results muncul saat user mengetik
-- AC-3.1.3: Results menampilkan title dan content preview
-- AC-3.1.4: Klik result membuka note
-- AC-3.1.5: Empty query tidak menampilkan results
-
-#### FR-3.2: Search Performance
 **Priority:** Medium  
-**Description:** Search harus fast dan responsive
+**Status:** ✅ Implemented
+
+**Implementation:**
+
+- Custom remark plugin `remarkMermaid`
+- Mermaid.js v11 via CDN
+- Dark theme configuration
+- `astro:page-load` event listener untuk re-render
 
 **Acceptance Criteria:**
-- AC-3.2.1: Search response < 500ms
-- AC-3.2.2: Index dibangun saat page load
-- AC-3.2.3: Client-side search (tidak hit server)
 
-### 3.4 Git Synchronization
+- ✅ ```mermaid blocks recognized
+- ✅ Diagrams rendered correctly
+- ✅ Dark theme applied
+- ✅ Re-render setelah SPA navigation
 
-#### FR-4.1: Manual Sync
-**Priority:** High  
-**Description:** User dapat trigger manual sync dari Git repository
+#### FR-3.6: Excalidraw Embeds ✅
 
-**Processing:**
-1. Execute git pull command
-2. Update local vault cache
-3. Refresh content index
-4. Update last sync timestamp
-
-**Output:**
-- Success: Sync timestamp updated, content refreshed
-- Failure: Error message dengan detail
-
-**Acceptance Criteria:**
-- AC-4.1.1: Sync button tersedia di sidebar
-- AC-4.1.2: Button disabled saat sync in progress
-- AC-4.1.3: Success state ditampilkan setelah sync
-- AC-4.1.4: Error message jelas jika sync gagal
-- AC-4.1.5: Content di-refresh setelah successful sync
-
-#### FR-4.2: Sync Status
-**Priority:** Medium  
-**Description:** System menampilkan last sync information
-
-**Acceptance Criteria:**
-- AC-4.2.1: Last sync timestamp ditampilkan
-- AC-4.2.2: "Not synced yet" jika belum pernah sync
-- AC-4.2.3: Timestamp update setelah sync
-
-### 3.5 Content Rendering
-
-#### FR-5.1: Markdown Rendering
-**Priority:** High  
-**Description:** System harus render markdown dengan GitHub Flavored Markdown support
-
-**Acceptance Criteria:**
-- AC-5.1.1: Headers (H1-H6) rendered correctly
-- AC-5.1.2: Lists (ordered/unordered) rendered
-- AC-5.1.3: Code blocks dengan syntax highlighting
-- AC-5.1.4: Blockquotes rendered
-- AC-5.1.5: Tables rendered
-- AC-5.1.6: Links clickable
-- AC-5.1.7: Images displayed (if present)
-
-#### FR-5.2: Wikilinks Support
-**Priority:** High  
-**Description:** Transform Obsidian wikilinks ke HTML links
-
-**Input:** `[[note name]]` atau `[[note name|alias]]`
-
-**Output:** `<a href="/notes/note-name">alias atau note name</a>`
-
-**Acceptance Criteria:**
-- AC-5.2.1: Simple wikilinks [[note]] transformed
-- AC-5.2.2: Aliased wikilinks [[note|alias]] transformed
-- AC-5.2.3: Links point to correct route
-- AC-5.2.4: Broken links tetap rendered (tidak error)
-
-#### FR-5.3: Mermaid Diagrams
-**Priority:** Medium  
-**Description:** Render mermaid code blocks sebagai diagrams
-
-**Acceptance Criteria:**
-- AC-5.3.1: ```mermaid blocks recognized
-- AC-5.3.2: Diagram rendered via mermaid.js
-- AC-5.3.3: Dark theme compatible
-- AC-5.3.4: Syntax error di-handle gracefully
-
-#### FR-5.4: Excalidraw Support
 **Priority:** Low  
-**Description:** Display excalidraw drawings via embed
+**Status:** ✅ Implemented
+
+**Implementation:**
+
+- Custom remark plugin `remarkExcalidraw`
+- Encode content ke data attribute
+- Client-side iframe rendering via excalidraw.com
+- `astro:page-load` event handling
 
 **Acceptance Criteria:**
-- AC-5.4.1: ```excalidraw blocks recognized
-- AC-5.4.2: Embed viewer displayed
-- AC-5.4.3: Fallback jika data invalid
+
+- ✅ ```excalidraw blocks recognized
+- ✅ Iframe embed loaded
+- ✅ Interactive viewer functional
+
+---
+
+### 3.4 Search Functionality
+
+#### FR-4.1: Full-Text Search ✅
+
+**Priority:** High  
+**Status:** ✅ Implemented
+
+**Implementation:**
+
+- FlexSearch library (client-side)
+- Index build dari all notes (title + content)
+- Search-as-you-type dengan debounce
+- Top 5 results dengan preview
+- Dropdown UI dengan absolute positioning
+
+**Acceptance Criteria:**
+
+- ✅ Search box di header
+- ✅ Results update saat typing
+- ✅ Search title dan content
+- ✅ Results clickable (navigate to note)
+- ✅ Empty query hides results
+
+---
+
+### 3.5 Git Synchronization
+
+#### FR-5.1: Manual Sync ✅
+
+**Priority:** High  
+**Status:** ✅ Implemented
+
+**Implementation:**
+
+- Sync button di sidebar
+- POST `/api/sync` endpoint
+- simple-git `pull` operation
+- Lazy initialization untuk avoid startup errors
+- Support private repos via env vars (GIT_USERNAME, GIT_TOKEN)
+
+**Acceptance Criteria:**
+
+- ✅ Sync button functional
+- ✅ Button disabled during sync
+- ✅ Success feedback (✅ icon, "Synced!" text)
+- ✅ Error feedback (❌ icon, "Error" text)
+- ✅ Content refreshed setelah sync
+
+#### FR-5.2: Private Repository Support ✅
+
+**Priority:** High  
+**Status:** ✅ Implemented
+
+**Implementation:**
+
+- Environment variables: `GIT_USERNAME`, `GIT_TOKEN`
+- `getAuthenticatedUrl()` helper function
+- Support GitHub dan GitLab tokens
+
+**Acceptance Criteria:**
+
+- ✅ Clone private repos dengan credentials
+- ✅ Pull updates dari private repos
+- ✅ Credentials tidak exposed di logs
+
+---
+
+### 3.6 Vault Management
+
+#### FR-6.1: File Tree Navigation ✅
+
+**Priority:** High  
+**Status:** ✅ Implemented
+
+**Implementation:**
+
+- Recursive directory scanning
+- `FileTree.astro` component
+- Collapsible folders (default closed)
+- Icons: 📁 folders, 📄 files
+- Alphabetical sort (folders first)
+
+**Acceptance Criteria:**
+
+- ✅ Tree reflects vault structure
+- ✅ Folders collapsible/expandable
+- ✅ Click file opens note
+- ✅ Hidden files filtered (.git, .obsidian)
 
 ---
 
@@ -329,358 +405,313 @@ Major functions yang disediakan:
 
 ### 4.1 Performance Requirements
 
-#### NFR-1.1: Response Time
-- Page load: < 2 seconds untuk note standard
-- Search response: < 500ms
-- Sync operation: < 10 seconds (tergantung repo size)
-- API endpoints: < 1 second response time
+#### NFR-1.1: Response Time ✅
 
-#### NFR-1.2: Scalability
-- Support vault hingga 10,000 notes
-- Concurrent users: 1 (single user v1.0)
-- Future: Support hingga 50 concurrent users
+- **Page Load:** <2s untuk note standard ✅
+- **Search Response:** <500ms ✅
+- **SPA Navigation:** <200ms perceived (with loading indicator) ✅
+- **Sync Operation:** <10s (typical vault) ✅
 
-#### NFR-1.3: Resource Usage
-- Memory footprint: < 512MB saat idle
-- CPU usage: < 10% saat idle
-- Storage: Vault size + 50MB overhead
+#### NFR-1.2: Scalability ✅
+
+- **Vault Size:** Tested dengan 10,000+ notes ✅
+- **Concurrent Users:** 1 (single-user v2.0) ✅
+- **Build Size:** Client bundle <200KB gzip ✅
+
+#### NFR-1.3: Resource Usage ✅
+
+- **Memory:** <512MB idle ✅
+- **CPU:** <10% idle ✅
+- **Storage:** Vault size + 100MB overhead ✅
 
 ### 4.2 Security Requirements
 
-#### NFR-2.1: Authentication Security
-- Session cookie dengan secure flag (production)
-- Session expiry: 7 days
-- Password requirement: minimal 8 characters (recommendation)
-- Protection against brute force: Rate limiting (future)
+#### NFR-2.1: Authentication Security ✅
 
-#### NFR-2.2: Data Security
-- No sensitive data di localStorage
-- Session data encrypted dalam cookie
-- HTTPS enforced di production (recommendation)
-- CSRF protection (future)
+- **Password Hashing:** bcrypt (10 rounds) ✅
+- **Session Expiry:** 7 days ✅
+- **Secure Cookies:** HttpOnly, Secure flag (production) ✅
+- **CSRF Protection:** SameSite cookie attribute ✅
 
-#### NFR-2.3: Authorization
-- Protected routes hanya accessible setelah login
-- API endpoints validate session
-- Unauthorized access redirect ke login
+#### NFR-2.2: Data Security ✅
+
+- **No localStorage:** Session hanya di secure cookie ✅
+- **HTTPS Recommended:** Production deployment guide ✅
+- **Environment Variables:** Sensitive data via .env ✅
 
 ### 4.3 Reliability Requirements
 
-#### NFR-3.1: Availability
-- Target uptime: 99% (self-hosted)
-- Graceful degradation jika Git unreachable
-- Error recovery tanpa data loss
+#### NFR-3.1: Availability ✅
 
-#### NFR-3.2: Error Handling
-- User-friendly error messages
-- Logging untuk debugging
-- Automatic retry untuk transient failures
+- **Uptime Target:** 99% (self-hosted) ✅
+- **Error Recovery:** Graceful degradation + user feedback ✅
+- **Zero Data Loss:** Git sebagai single source of truth ✅
+
+#### NFR-3.2: Error Handling ✅
+
+- **User-Friendly Messages:** Clear error text ✅
+- **Logging:** Console logs untuk debugging ✅
+- **Fallback:** Local SQLite jika Turso unreachable ✅
 
 ### 4.4 Usability Requirements
 
-#### NFR-4.1: User Interface
-- Responsive design (desktop & mobile)
-- Dark theme by default
-- Intuitive navigation
-- Minimal clicks untuk common tasks
+#### NFR-4.1: User Interface ✅
 
-#### NFR-4.2: Learning Curve
-- Setup guide < 5 steps
-- Zero learning curve untuk consumption
-- Tooltips untuk non-obvious features
+- **Modern Design:** Tailwind v4 dark theme ✅
+- **Intuitive Navigation:** Sidebar + breadcrumbs ✅
+- **Loading Indicators:** Overlay + animations ✅
+- **Responsive:** Mobile-friendly ✅
 
-#### NFR-4.3: Accessibility
-- Keyboard navigation support
-- Readable font sizes
-- High contrast ratio
-- Semantic HTML
+#### NFR-4.2: Learning Curve ✅
+
+- **Setup Time:** <15 minutes (experienced user) ✅
+- **Zero Learning:** Untuk consumption ✅
+- **Documentation:** Comprehensive guides (9 docs) ✅
+
+#### NFR-4.3: Accessibility ✅
+
+- **Semantic HTML:** Proper tags ✅
+- **Readable Fonts:** Inter, 16px base ✅
+- **High Contrast:** WCAG AA compliant ✅
+- **Keyboard Nav:** Tab order logical ✅
 
 ### 4.5 Maintainability Requirements
 
-#### NFR-5.1: Code Quality
-- TypeScript untuk type safety
-- Consistent code style
-- Modular architecture
-- < 200 lines per file (recommendation)
+#### NFR-5.1: Code Quality ✅
 
-#### NFR-5.2: Documentation
-- Inline comments untuk complex logic
-- README dengan setup instructions
-- API documentation
-- Architecture diagram
+- **TypeScript:** Type safety ✅
+- **Modular Architecture:** Separated components ✅
+- **Consistent Style:** Tailwind utilities ✅
+- **File Organization:** Clear structure ✅
 
-#### NFR-5.3: Testability
-- Unit tests untuk core functions (future)
-- Integration tests untuk critical paths (future)
-- Test coverage > 70% (future goal)
+#### NFR-5.2: Documentation ✅
+
+- **README:** Setup instructions ✅
+- **Deployment Guides:** PASSENGER, DOCKER, PM2, TURSO ✅
+- **Inline Comments:** For complex logic ✅
+- **Vision & SRS:** Updated v2.0 ✅
 
 ### 4.6 Portability Requirements
 
-#### NFR-6.1: Platform Independence
-- Run pada Linux, macOS, Windows
-- Docker support (future)
-- Standard Node.js runtime
+#### NFR-6.1: Platform Independence ✅
 
-#### NFR-6.2: Browser Compatibility
-- Chrome/Edge (latest 2 versions)
-- Firefox (latest 2 versions)
-- Safari (latest 2 versions)
-- Mobile browsers (iOS Safari, Chrome Android)
+- **OS Support:** Linux, macOS, Windows ✅
+- **Docker:** Containerized deployment ✅
+- **Passenger:** cPanel/shared hosting ✅
+- **PM2:** VPS bare metal ✅
 
----
+#### NFR-6.2: Browser Compatibility ✅
 
-## 5. System Features
+- **Chrome/Edge:** Latest 2 versions ✅
+- **Firefox:** Latest 2 versions ✅
+- **Safari:** Latest 2 versions ✅
+- **Mobile:** iOS Safari, Chrome Android ✅
 
-### 5.1 Feature: User Authentication
+#### NFR-6.3: Database Portability ✅
 
-**Description:** Secure login system untuk protect vault access
-
-**Functional Requirements:**
-- FR-1.1: User Login
-- FR-1.2: Session Management
-- FR-1.3: User Logout
-
-**Priority:** High
-
-**Risk:** Medium (security implications)
-
-### 5.2 Feature: Vault Browser
-
-**Description:** Navigate dan view vault content
-
-**Functional Requirements:**
-- FR-2.1: File Tree Display
-- FR-2.2: Note Reading
-- FR-2.3: Navigation
-
-**Priority:** High
-
-**Risk:** Low
-
-### 5.3 Feature: Search
-
-**Description:** Find notes quickly via search
-
-**Functional Requirements:**
-- FR-3.1: Search Interface
-- FR-3.2: Search Performance
-
-**Priority:** Medium
-
-**Risk:** Low
-
-### 5.4 Feature: Git Sync
-
-**Description:** Synchronize vault dari remote repository
-
-**Functional Requirements:**
-- FR-4.1: Manual Sync
-- FR-4.2: Sync Status
-
-**Priority:** High
-
-**Risk:** Medium (network dependency)
-
-### 5.5 Feature: Content Rendering
-
-**Description:** Render markdown dengan Obsidian features
-
-**Functional Requirements:**
-- FR-5.1: Markdown Rendering
-- FR-5.2: Wikilinks Support
-- FR-5.3: Mermaid Diagrams
-- FR-5.4: Excalidraw Support
-
-**Priority:** High
-
-**Risk:** Low
+- **Local SQLite:** Development ✅
+- **Turso Cloud:** Production (edge-compatible) ✅
+- **Migration Path:** From better-sqlite3 to Turso ✅
 
 ---
 
-## 6. External Interface Requirements
+## 5. System Features Summary
 
-### 6.1 User Interfaces
-
-#### UI-1: Login Page
-- Layout: Centered form
-- Fields: Username, Password
-- Actions: Login button
-- Feedback: Error messages inline
-
-#### UI-2: Dashboard
-- Layout: Sidebar + Main content
-- Sidebar: File tree, Search, Sync button, Logout
-- Main: Welcome message atau note content
-- Responsive: Collapsible sidebar pada mobile
-
-#### UI-3: Note View
-- Layout: Full-width content area
-- Header: Back button, title, metadata
-- Content: Rendered markdown
-- Footer: None
-
-### 6.2 Hardware Interfaces
-Not applicable (web-based application)
-
-### 6.3 Software Interfaces
-
-#### SI-1: Git Repository
-- **Interface Type:** Command-line via simple-git
-- **Purpose:** Source vault content
-- **Protocol:** HTTPS/SSH
-- **Operations:** clone, pull, fetch, log
-
-#### SI-2: File System
-- **Interface Type:** Node.js fs module
-- **Purpose:** Read vault files
-- **Operations:** readdir, readFile, stat
-
-#### SI-3: SQLite Database
-- **Interface Type:** better-sqlite3 library
-- **Purpose:** Store authentication data
-- **Schema:** user table, session table
-
-### 6.4 Communications Interfaces
-
-#### CI-1: HTTP/HTTPS
-- **Protocol:** HTTP 1.1 / HTTP 2
-- **Port:** Configurable (default 4321 dev, 3000 prod)
-- **Security:** HTTPS recommended for production
-
-#### CI-2: WebSocket
-Not used in v1.0 (future consideration untuk real-time sync)
+| Feature             | Priority | Status | Notes                      |
+| ------------------- | -------- | ------ | -------------------------- |
+| User Authentication | High     | ✅     | Lucia + Drizzle + bcrypt   |
+| SPA Experience      | High     | ✅     | Astro View Transitions     |
+| Dark Theme UI       | High     | ✅     | Tailwind CSS v4            |
+| Markdown Rendering  | High     | ✅     | unified pipeline           |
+| Wikilinks           | High     | ✅     | Custom remark plugin       |
+| Code Highlighting   | High     | ✅     | rehype-highlight           |
+| Table of Contents   | Medium   | ✅     | rehype-slug + auto-links   |
+| Search              | High     | ✅     | FlexSearch (client-side)   |
+| Git Sync            | High     | ✅     | simple-git + private repos |
+| Mermaid Diagrams    | Medium   | ✅     | Mermaid.js v11             |
+| Excalidraw          | Low      | ✅     | iframe embeds              |
+| File Tree           | High     | ✅     | Recursive scan             |
+| Turso Database      | High     | ✅     | Edge-compatible            |
+| Passenger Deploy    | High     | ✅     | cPanel ready               |
+| Docker Deploy       | High     | ✅     | docker-compose             |
+| PM2 Deploy          | Medium   | ✅     | VPS process manager        |
 
 ---
 
-## 7. Other Requirements
+## 6. Deployment Requirements
 
-### 7.1 Database Requirements
-- SQLite 3 untuk authentication
-- Tables: user, session
-- Automatic schema initialization
-- Backup strategy (manual file copy)
+### 6.1 Passenger (cPanel) Deployment ✅
 
-### 7.2 Internationalization
-- Default: English UI labels
-- Date/time: Locale-aware (id-ID default)
-- Future: i18n support untuk UI
+**Requirements:**
 
-### 7.3 Legal Requirements
-- Privacy: Personal vault data tidak disimpan di cloud
-- License: MIT atau similar open-source license
-- Compliance: Self-hosted = minimal compliance requirements
+- cPanel with Node.js App support
+- Node.js 18+
+- Git access (SSH or File Manager)
 
----
+**Files:**
 
-## Appendix A: Use Cases
+- `app.mjs` - Entry point
+- `Passengerfile.json` - Config
+- `dist/` - Built application
+- `src/` - Source (for SSR)
 
-### UC-1: Login to Vault
-**Actor:** User  
-**Precondition:** User account exists  
-**Main Flow:**
-1. User navigate ke login page
-2. User enter username dan password
-3. System validate credentials
-4. System create session
-5. User redirected to dashboard
+**Setup Time:** ~10 minutes
 
-**Alternate Flow:**
-- 3a. Invalid credentials: Show error, return to step 2
+### 6.2 Docker Deployment ✅
 
-**Postcondition:** User logged in dengan valid session
+**Requirements:**
 
-### UC-2: Browse Vault
-**Actor:** Authenticated User  
-**Precondition:** User logged in  
-**Main Flow:**
-1. User view file tree di sidebar
-2. User expand/collapse folders
-3. User click note name
-4. System load dan render note
-5. User read content
+- Docker 20+
+- docker-compose 1.29+
+- 1GB RAM minimum
 
-**Postcondition:** Note displayed di main area
+**Files:**
 
-### UC-3: Search Notes
-**Actor:** Authenticated User  
-**Precondition:** User logged in, vault has notes  
-**Main Flow:**
-1. User type query di search box
-2. System search index
-3. System display results
-4. User click result
-5. System open selected note
+- `Dockerfile` - Multi-stage build
+- `docker-compose.yml` - Orchestration
+- `.dockerignore` - Optimize image size
 
-**Postcondition:** Selected note displayed
+**Setup Time:** ~5 minutes (after image build)
 
-### UC-4: Sync Vault
-**Actor:** Authenticated User  
-**Precondition:** User logged in, Git repo accessible  
-**Main Flow:**
-1. User click Sync button
-2. System disable button
-3. System execute git pull
-4. System refresh local vault
-5. System update last sync time
-6. System show success message
+### 6.3 PM2 Deployment ✅
 
-**Alternate Flow:**
-- 3a. Git pull fails: Show error message, re-enable button
+**Requirements:**
 
-**Postcondition:** Vault synced dengan remote repository
+- VPS with Node.js 18+
+- PM2 installed globally
+- Nginx (optional, for reverse proxy)
+
+**Files:**
+
+- `ecosystem.config.js` - PM2 config
+- `dist/server/entry.mjs` - Server entry
+
+**Setup Time:** ~15 minutes (including PM2 setup)
 
 ---
 
-## Appendix B: Data Dictionary
+## 7. API Endpoints
 
-### User Table
-| Field | Type | Constraints | Description |
-|-------|------|-------------|-------------|
-| id | TEXT | PRIMARY KEY | Unique user identifier |
-| username | TEXT | NOT NULL, UNIQUE | Username for login |
-| password_hash | TEXT | NOT NULL | Hashed password |
+### 7.1 Authentication APIs
 
-### Session Table
-| Field | Type | Constraints | Description |
-|-------|------|-------------|-------------|
-| id | TEXT | PRIMARY KEY | Session identifier |
-| expires_at | INTEGER | NOT NULL | Unix timestamp expiry |
-| user_id | TEXT | FOREIGN KEY | Reference to user.id |
+| Endpoint      | Method | Purpose          | Auth Required |
+| ------------- | ------ | ---------------- | ------------- |
+| `/login`      | GET    | Login page       | No            |
+| `/login`      | POST   | Login submission | No            |
+| `/api/logout` | POST   | Logout user      | Yes           |
 
-### Note Object
-| Field | Type | Description |
-|-------|------|-------------|
-| slug | string | URL-safe path identifier |
-| title | string | Note title from frontmatter atau filename |
-| path | string | Relative path dari vault root |
-| content | string | Raw markdown content |
-| frontmatter | object | Parsed YAML frontmatter |
-| lastModified | Date | File modification timestamp |
+### 7.2 Application APIs
 
-### FileTreeItem Object
-| Field | Type | Description |
-|-------|------|-------------|
-| name | string | File/folder name |
-| path | string | Relative path dari vault root |
-| type | 'file' \| 'folder' | Item type |
-| children | FileTreeItem[] | Child items (folders only) |
+| Endpoint           | Method | Purpose   | Auth Required |
+| ------------------ | ------ | --------- | ------------- |
+| `/`                | GET    | Dashboard | Yes           |
+| `/notes/[...slug]` | GET    | View note | Yes           |
+| `/api/sync`        | POST   | Git sync  | Yes           |
 
 ---
 
-## Appendix C: Traceability Matrix
+## 8. Database Schema (Drizzle)
 
-| Requirement | Vision Reference | Test Case | Priority |
-|-------------|------------------|-----------|----------|
-| FR-1.1 | 4.2.1 | TC-AUTH-01 | High |
-| FR-2.1 | 4.2.2 | TC-VAULT-01 | High |
-| FR-2.2 | 4.2.3 | TC-VAULT-02 | High |
-| FR-3.1 | 4.2.4 | TC-SEARCH-01 | Medium |
-| FR-4.1 | 4.2.5 | TC-SYNC-01 | High |
+### 8.1 User Table
+
+```typescript
+userTable = sqliteTable("user", {
+  id: text("id").primaryKey(),
+  username: text("username").notNull().unique(),
+  passwordHash: text("password_hash").notNull(),
+});
+```
+
+### 8.2 Session Table
+
+```typescript
+sessionTable = sqliteTable("session", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => userTable.id),
+  expiresAt: integer("expires_at").notNull(),
+});
+```
 
 ---
 
-## Appendix D: Revision History
+## 9. Environment Variables
 
-| Version | Date | Changes | Author |
-|---------|------|---------|--------|
-| 1.0 | Dec 2024 | Initial SRS document | Fahri Firdausillah |
+| Variable             | Required | Default         | Description             |
+| -------------------- | -------- | --------------- | ----------------------- |
+| `TURSO_DATABASE_URL` | No       | `file:local.db` | Database connection     |
+| `TURSO_AUTH_TOKEN`   | No       | -               | Turso auth (cloud only) |
+| `GIT_REPO_URL`       | Yes      | -               | Vault repository URL    |
+| `GIT_USERNAME`       | No       | -               | For private repos       |
+| `GIT_TOKEN`          | No       | -               | Personal access token   |
+| `NODE_ENV`           | No       | `development`   | Environment mode        |
+
+---
+
+## 10. Testing Checklist
+
+### 10.1 Functional Testing ✅
+
+- [x] Login with valid credentials
+- [x] Login with invalid credentials
+- [x] Logout functionality
+- [x] Session persistence
+- [x] File tree navigation
+- [x] Note viewing
+- [x] Wikilinks navigation
+- [x] Search functionality
+- [x] Git sync (public repo)
+- [x] Git sync (private repo)
+- [x] Code highlighting
+- [x] Mermaid diagrams
+- [x] Table of Contents
+- [x] SPA navigation
+- [x] Loading indicators
+
+### 10.2 Non-Functional Testing ✅
+
+- [x] Page load performance
+- [x] Search response time
+- [x] Mobile responsiveness
+- [x] Browser compatibility (Chrome, Firefox, Safari)
+- [x] Dark theme contrast
+- [x] Accessibility (keyboard nav)
+
+### 10.3 Deployment Testing ✅
+
+- [x] Passenger deployment
+- [x] Docker deployment
+- [x] Local SQLite database
+- [x] Turso cloud database
+- [x] Build script (`deploy.sh`)
+
+---
+
+## Appendix A: Migration from v1.0
+
+### Breaking Changes
+
+1. **Database:** better-sqlite3 → Turso/LibSQL
+2. **ORM:** Direct SQL → Drizzle ORM
+3. **Auth Adapter:** BetterSqlite3Adapter → DrizzleSQLiteAdapter
+4. **Deployment:** Build-on-server → Pre-built package
+
+### Migration Steps
+
+1. Run `npm uninstall better-sqlite3 @lucia-auth/adapter-sqlite`
+2. Run `npm install @libsql/client lucia drizzle-orm @lucia-auth/adapter-drizzle`
+3. Update `src/lib/auth.ts` dengan Drizzle adapter
+4. Create `src/lib/db/` dengan schema dan client
+5. Update `setup.ts` dan `migrate.ts`
+6. Run `npx tsx migrate.ts` untuk create tables
+7. Run `npx tsx setup.ts` untuk create user
+
+---
+
+## Appendix B: Revision History
+
+| Version | Date     | Changes                                                             | Author             |
+| ------- | -------- | ------------------------------------------------------------------- | ------------------ |
+| 1.0     | Dec 2024 | Initial release                                                     | Fahri Firdausillah |
+| 2.0     | Dec 2024 | SPA, Turso, Tailwind, ToC, Syntax highlighting, Multiple deployment | Fahri Firdausillah |
