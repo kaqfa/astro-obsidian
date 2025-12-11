@@ -78,12 +78,33 @@ npm install --production
 \`\`\`
 EOF
 
-echo "✅ Deployment package ready!"
+echo "✅ Deployment package ready in ./deploy/"
 echo ""
-echo "Next steps:"
+echo "Setting up for local testing..."
+
+# Create symlink to vault (if exists)
+if [ -d "./vault" ]; then
+  cd deploy
+  ln -sf ../vault vault
+  echo "✅ Vault symlink created"
+  cd ..
+fi
+
+# Copy .env if exists
+if [ -f ".env" ]; then
+  cp .env deploy/.env
+  echo "✅ Environment variables copied"
+fi
+
+echo ""
+echo "To test locally:"
+echo "  cd deploy"
+echo "  npx tsx migrate.ts  # First time only"
+echo "  node dist/server/entry.mjs"
+echo "  # Or test with Passenger: passenger start"
+echo ""
+echo "To deploy to server:"
 echo "1. cd deploy"
-echo "2. git init"
-echo "3. git add ."
-echo "4. git commit -m 'production build'"
-echo "5. git remote add origin https://github.com/kaqfa/astro-obsidian-deploy.git"
-echo "6. git push -u origin main"
+echo "2. git add ."
+echo "3. git commit -m 'production build'"
+echo "4. git push"
