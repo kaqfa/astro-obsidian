@@ -715,3 +715,452 @@ sessionTable = sqliteTable("session", {
 | ------- | -------- | ------------------------------------------------------------------- | ------------------ |
 | 1.0     | Dec 2024 | Initial release                                                     | Fahri Firdausillah |
 | 2.0     | Dec 2024 | SPA, Turso, Tailwind, ToC, Syntax highlighting, Multiple deployment | Fahri Firdausillah |
+
+---
+
+## Appendix C: Future Requirements (v2.1+)
+
+### FR-GRAPH: Graph View System
+
+#### FR-GRAPH-1: Graph Data Generation ⏳
+**Priority:** High  
+**Status:** Planned (v2.1)
+
+**Requirements:**
+- System harus build graph structure dari wikilinks
+- Node = note, Edge = wikilink connection
+- Support bidirectional links
+- Calculate node metrics (degree, centrality)
+- Update graph data on vault sync
+
+**Acceptance Criteria:**
+- AC-GRAPH-1.1: Graph data accurate untuk semua notes
+- AC-GRAPH-1.2: Performance <1s untuk 1000 notes
+- AC-GRAPH-1.3: Incremental update on sync
+
+#### FR-GRAPH-2: Interactive Visualization ⏳
+**Priority:** High  
+**Status:** Planned (v2.1-2.2)
+
+**Requirements:**
+- Render graph menggunakan D3.js atau Cytoscape
+- Interactive: zoom, pan, drag nodes
+- Click node navigates to note
+- Filter by tags, folders, date
+- Multiple layout algorithms
+
+**Acceptance Criteria:**
+- AC-GRAPH-2.1: Smooth 60fps rendering
+- AC-GRAPH-2.2: WebGL acceleration untuk >1000 nodes
+- AC-GRAPH-2.3: Responsive on mobile (touch gestures)
+
+---
+
+### FR-TAG: Tagging System
+
+#### FR-TAG-1: Tag Extraction ⏳
+**Priority:** High  
+**Status:** Planned (v2.1)
+
+**Requirements:**
+- Extract tags dari frontmatter YAML
+- Parse inline tags (#tag, #nested/tag)
+- Support tag hierarchies
+- Index tags untuk quick access
+
+**Acceptance Criteria:**
+- AC-TAG-1.1: All tag formats recognized
+- AC-TAG-1.2: Tag index built <500ms
+- AC-TAG-1.3: Update on vault sync
+
+#### FR-TAG-2: Tag Browser ⏳
+**Priority:** Medium  
+**Status:** Planned (v2.1)
+
+**Requirements:**
+- Tag explorer UI (sidebar panel)
+- Filter notes by selected tags
+- Tag cloud visualization (weighted)
+- Tag autocomplete in search
+
+**Acceptance Criteria:**
+- AC-TAG-2.1: Tag list dengan note count
+- AC-TAG-2.2: Multi-tag filtering (AND/OR)
+- AC-TAG-2.3: Tag cloud responsive
+
+---
+
+### FR-BACKLINK: Backlinks System
+
+#### FR-BACKLINK-1: Backlink Detection ⏳
+**Priority:** High  
+**Status:** Planned (v2.1)
+
+**Requirements:**
+- Build reverse index dari wikilinks
+- Detect unlinked mentions (note titles dalam content)
+- Extract context around backlinks
+- Real-time update capability
+
+**Acceptance Criteria:**
+- AC-BACKLINK-1.1: All backlinks detected
+- AC-BACKLINK-1.2: Context preview (50 chars before/after)
+- AC-BACKLINK-1.3: Index build <1s for 1000 notes
+
+#### FR-BACKLINK-2: Backlink Panel ⏳
+**Priority:** Medium  
+**Status:** Planned (v2.1)
+
+**Requirements:**
+- Display backlinks untuk current note
+- Clickable backlinks with preview
+- Show unlinked mentions separately
+- Count backlinks badge
+
+**Acceptance Criteria:**
+- AC-BACKLINK-2.1: Panel di right sidebar
+- AC-BACKLINK-2.2: Click navigates to source note
+- AC-BACKLINK-2.3: Empty state for notes tanpa backlinks
+
+---
+
+### FR-RECENT: Recent Notes
+
+#### FR-RECENT-1: View History Tracking ⏳
+**Priority:** Medium  
+**Status:** Planned (v2.1)
+
+**Requirements:**
+- Track note views (timestamp, note ID)
+- Store di localStorage (single user) or DB (multi-user)
+- Limit history to 50 items
+- Clear history option
+
+**Acceptance Criteria:**
+- AC-RECENT-1.1: View recorded on note load
+- AC-RECENT-1.2: Persists across sessions
+- AC-RECENT-1.3: No performance impact
+
+#### FR-RECENT-2: Recent Notes UI ⏳
+**Priority:** Low  
+**Status:** Planned (v2.1)
+
+**Requirements:**
+- Display recent 10 notes in sidebar/dashboard
+- Sort by last accessed or view count
+- Quick access click to navigate
+
+**Acceptance Criteria:**
+- AC-RECENT-2.1: List updates immediately
+- AC-RECENT-2.2: Show last viewed timestamp
+- AC-RECENT-2.3: Responsive design
+
+---
+
+### FR-SEARCH-ADV: Advanced Search
+
+#### FR-SEARCH-ADV-1: Query Parser ⏳
+**Priority:** High  
+**Status:** Planned (v2.2)
+
+**Requirements:**
+- Parse search syntax: `tag:project path:folder/ "exact phrase"`
+- Boolean operators (AND, OR, NOT)
+- Regex pattern support
+- Field-specific search (title, content, tags, frontmatter)
+
+**Acceptance Criteria:**
+- AC-SEARCH-ADV-1.1: All operators work correctly
+- AC-SEARCH-ADV-1.2: Syntax errors handled gracefully
+- AC-SEARCH-ADV-1.3: Performance <500ms
+
+#### FR-SEARCH-ADV-2: Result Enhancement ⏳
+**Priority:** Medium  
+**Status:** Planned (v2.2)
+
+**Requirements:**
+- Context preview dengan match highlighting
+- Search history dengan suggestions
+- Result ranking improvement
+- Export search results
+
+**Acceptance Criteria:**
+- AC-SEARCH-ADV-2.1: Matches highlighted in preview
+- AC-SEARCH-ADV-2.2: History stored (10 recent)
+- AC-SEARCH-ADV-2.3: Relevant results ranked higher
+
+---
+
+### FR-TEMPLATE: Note Templates
+
+#### FR-TEMPLATE-1: Template Engine ⏳
+**Priority:** Medium  
+**Status:** Planned (v2.2)
+
+**Requirements:**
+- Create notes from templates
+- Variable substitution ({{date}}, {{time}}, {{title}})
+- Custom variables support
+- Template previews
+
+**Acceptance Criteria:**
+- AC-TEMPLATE-1.1: Variables replaced correctly
+- AC-TEMPLATE-1.2: Error handling for invalid templates
+- AC-TEMPLATE-1.3: Fast rendering (<100ms)
+
+#### FR-TEMPLATE-2: Template Manager ⏳
+**Priority:** Low  
+**Status:** Planned (v2.2)
+
+**Requirements:**
+- Template library UI
+- CRUD templates (Create, Read, Update, Delete)
+- Template categories/tags
+- Import/export templates
+
+**Acceptance Criteria:**
+- AC-TEMPLATE-2.1: Easy template selection
+- AC-TEMPLATE-2.2: Template validation
+- AC-TEMPLATE-2.3: Shareable template format
+
+---
+
+### FR-EXPORT: Export Options
+
+#### FR-EXPORT-1: PDF Export ⏳
+**Priority:** Medium  
+**Status:** Planned (v2.3)
+
+**Requirements:**
+- Export single note as PDF
+- Preserve markdown formatting, diagrams
+- Print-friendly styling
+- Custom PDF templates
+
+**Technical:**
+- Puppeteer headless browser
+- Wait for diagrams to render
+- Clean CSS for print
+
+**Acceptance Criteria:**
+- AC-EXPORT-1.1: PDF preserves all content
+- AC-EXPORT-1.2: Images and diagrams included
+- AC-EXPORT-1.3: Table of contents generated
+
+#### FR-EXPORT-2: Static Site Export ⏳
+**Priority:** Low  
+**Status:** Planned (v2.3)
+
+**Requirements:**
+- Export folder/vault as static HTML
+- Generate navigation
+- Preserve wikilinks as HTML links
+- Customizable export templates
+
+**Acceptance Criteria:**
+- AC-EXPORT-2.1: All notes exported
+- AC-EXPORT-2.2: Links functional
+- AC-EXPORT-2.3: Standalone deployment ready
+
+---
+
+### FR-MULTIUSER: Multi-user Support
+
+#### FR-MULTIUSER-1: User Management ⏳
+**Priority:** Very High  
+**Status:** Planned (v2.3-2.4)
+
+**Requirements:**
+- CRUD users (Admin only)
+- User profiles (name, email, avatar)
+- Password management (change, reset)
+- User status (active, suspended)
+
+**Database Changes:**
+- Expand user table: add email, role, avatar
+- Activity log table
+- Permission table
+
+**Acceptance Criteria:**
+- AC-MULTIUSER-1.1: Admin dapat manage users
+- AC-MULTIUSER-1.2: Users can update own profile
+- AC-MULTIUSER-1.3: Secure password reset flow
+
+#### FR-MULTIUSER-2: Role-Based Access ⏳
+**Priority:** Very High  
+**Status:** Planned (v2.3-2.4)
+
+**Requirements:**
+- Roles: Admin, Editor, Reader
+- Permissions per role:
+  - Admin: Full access
+  - Editor: Read + Edit notes
+  - Reader: Read-only
+- Per-folder/note permissions override
+- Permission inheritance
+
+**Acceptance Criteria:**
+- AC-MULTIUSER-2.1: Roles enforced at middleware
+- AC-MULTIUSER-2.2: Forbidden actions return 403
+- AC-MULTIUSER-2.3: UI adapts to user role
+
+---
+
+### FR-API: REST API
+
+#### FR-API-1: Public Endpoints ⏳
+**Priority:** High  
+**Status:** Planned (v2.4)
+
+**Endpoints:**
+```
+GET    /api/notes           # List all notes
+GET    /api/notes/:slug     # Get note content
+GET    /api/search?q=       # Search notes
+POST   /api/webhooks/sync   # Trigger sync
+GET    /api/tags            # List tags
+GET    /api/graph           # Graph data
+```
+
+**Acceptance Criteria:**
+- AC-API-1.1: All endpoints documented (OpenAPI)
+- AC-API-1.2: Versioned API (/api/v1/)
+- AC-API-1.3: Error responses standardized
+
+#### FR-API-2: Authentication & Security ⏳
+**Priority:** High  
+**Status:** Planned (v2.4)
+
+**Requirements:**
+- API key authentication
+- Key management UI
+- Rate limiting (per key)
+- CORS configuration
+- API usage logging
+
+**Acceptance Criteria:**
+- AC-API-2.1: Valid key required for all endpoints
+- AC-API-2.2: Rate limit: 100 req/min per key
+- AC-API-2.3: Invalid key returns 401
+
+---
+
+### FR-PLUGIN: Plugin System
+
+#### FR-PLUGIN-1: Plugin SDK ⏳
+**Priority:** Very High  
+**Status:** Planned (v2.5)
+
+**Requirements:**
+- Plugin API specification
+- Hooks system (lifecycle events)
+- Custom remark/rehype plugins
+- Custom UI components injection
+- Plugin configuration storage
+
+**Acceptance Criteria:**
+- AC-PLUGIN-1.1: SDK documentation complete
+- AC-PLUGIN-1.2: Example plugins provided
+- AC-PLUGIN-1.3: Backward compatibility policy
+
+#### FR-PLUGIN-2: Plugin Manager ⏳
+**Priority:** High  
+**Status:** Planned (v2.5)
+
+**Requirements:**
+- Install/uninstall plugins
+- Enable/disable plugins
+- Plugin settings UI
+- Plugin update checks
+- Sandboxed execution (Web Workers)
+
+**Acceptance Criteria:**
+- AC-PLUGIN-2.1: Safe plugin isolation
+- AC-PLUGIN-2.2: Error in plugin doesn't crash app
+- AC-PLUGIN-2.3: Plugin permissions system
+
+---
+
+## Appendix D: Quality Requirements (v2.1+)
+
+### NFR-QUAL-1: Performance Targets
+
+| Metric | Current | v2.1 Target | v3.0 Target |
+|--------|---------|-------------|-------------|
+| Time to Interactive | 2.5s | 1.5s | 1.0s |
+| Search response | 500ms | 200ms | 100ms |
+| Graph render (1000 nodes) | N/A | 3s | 1s |
+| Memory usage (idle) | 300MB | 200MB | 150MB |
+| Bundle size (gzip) | 150KB | 120KB | 100KB |
+
+### NFR-QUAL-2: Scalability Targets
+
+| Metric | v2.0 | v2.4 | v3.0 |
+|--------|------|------|------|
+| Notes supported | 10K | 50K | 100K |
+| Concurrent users | 1 | 10 | 50 |
+| API throughput | N/A | 100 req/s | 1000 req/s |
+| Database size | 50MB | 500MB | 5GB |
+
+### NFR-QUAL-3: Security Requirements
+
+#### Implemented (v2.0) ✅
+- Session-based authentication
+- bcrypt password hashing
+- Secure cookies (HttpOnly, SameSite)
+- HTTPS in production
+
+#### Planned (v2.1+) ⏳
+- Rate limiting (login, sync, API)
+- CSRF token protection
+- Content Security Policy headers
+- Input sanitization (DOMPurify)
+- SQL injection prevention (via Drizzle)
+- XSS prevention
+- Security headers (HSTS, X-Frame-Options)
+- Dependency vulnerability scanning
+- Penetration testing (annually)
+
+### NFR-QUAL-4: Testing Requirements
+
+**Current Status:** No automated tests ❌
+
+**Target (v2.1):**
+- Unit tests: 60% coverage (Vitest)
+- E2E tests: Critical paths (Playwright)
+- Component tests: React components (Testing Library)
+
+**Target (v3.0):**
+- Unit tests: 80% coverage
+- E2E tests: Full user journeys
+- Integration tests: API endpoints
+- Performance tests: Load testing (k6)
+- Visual regression tests (Percy/Chromatic)
+
+### NFR-QUAL-5: Monitoring & Observability
+
+**Planned (v2.2):**
+- Error tracking (Sentry)
+- Performance monitoring (Web Vitals)
+- Structured logging (Pino/Winston)
+- Uptime monitoring (UptimeRobot/StatusCake)
+
+**Planned (v3.0):**
+- Distributed tracing (Jaeger/Zipkin)
+- Metrics dashboard (Grafana)
+- Alerting (PagerDuty/Opsgenie)
+- User analytics (privacy-focused)
+
+---
+
+## Appendix E: Revision History
+
+| Version | Date | Changes | Author |
+|---------|------|---------|--------|
+| 1.0 | Dec 2024 | Initial SRS document | Fahri Firdausillah |
+| 2.0 | Dec 2024 | Updated for v2.0 implementation + Future roadmap | Fahri Firdausillah |
+
+---
+
+*Last updated: December 2024*  
+*Next review: Q1 2025 (during v2.1 planning)*
