@@ -43,8 +43,28 @@ export async function initVault(repoUrl: string) {
 
 export async function syncVault() {
   try {
+    // Get repo URL from environment or remote
+    let repoUrl = process.env.GIT_REPO_URL;
+    
+    if (!repoUrl) {
+      // Try to get from existing remote
+      const remotes = await git.getRemotes(true);
+      const origin = remotes.find(r => r.name === 'origin');
+      repoUrl = origin?.refs?.fetch || origin?.refs?.push;
+    }
+    
+    if (!repoUrl) {
+      throw new Error('No git repository URL configured');
+    }
+    
+    // Set authenticated remote URL
+    const authUrl = getAuthenticatedUrl(repoUrl);
+    await git.remote(['set-url', 'origin', authUrl]);
+    
+    // Now fetch and pull with credentials
     await git.fetch();
     await git.pull('origin', 'main');
+    
     return { 
       success: true, 
       timestamp: new Date().toISOString() 

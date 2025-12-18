@@ -74,6 +74,144 @@ export async function getNote(slug: string): Promise<Note | null> {
 }
 
 export async function getAllNotes(): Promise<Note[]> {
+  // Return cached notes if available
+  if (notesCache) {
+    return notesCache;
+  }
+  
+  // Otherwise, scan and cache
+  console.log('[Cache] Cache miss - scanning all notes...');
+  notesCache = await scanAllNotes();
+  notesCacheTimestamp = Date.now();
+  return notesCache;
+}
+
+export async function searchNotes(query: string): Promise<Note[]> {
+  const allNotes = await getAllNotes();
+  const lowerQuery = query.toLowerCase();
+
+  return allNotes.filter(note => {
+    const titleMatch = note.title.toLowerCase().includes(lowerQuery);
+    const contentMatch = note.content.toLowerCase().includes(lowerQuery);
+    return titleMatch || contentMatch;
+  });
+}
+
+// ============================================
+// SERVER-LEVEL CACHING SYSTEM
+// ============================================
+
+// Cache for all notes (populated on startup/sync)
+let notesCache: Note[] | null = null;
+let notesCacheTimestamp: number = 0;
+
+// In-memory cache untuk filename -> path mapping
+let filePathCache: Map<string, string> | null = null;
+
+/**
+ * Build cache of basename -> full path mappings
+ * Cache diupdate setiap kali function ini dipanggil
+ */
+export async function buildFilePathCache(): Promise<Map<string, string>> {
+  const cache = new Map<string, string>();
+  // Use cached notes if available to avoid re-scanning
+  const notes = notesCache || await getAllNotes();
+  
+  for (const note of notes) {
+    // Store multiple mappings for better wikilink resolution:
+    
+    // 1. Basename only (e.g., "W51-Plan" -> "Weekly/2025/W51-Plan")
+    const basename = parse(note.slug).name;
+    cache.set(basename.toLowerCase(), note.slug);
+    
+    // 2. Full slug (e.g., "Weekly/2025/W51-Plan" -> "Weekly/2025/W51-Plan")
+    cache.set(note.slug.toLowerCase(), note.slug);
+    
+    // 3. Handle paths with or without extension
+    // This helps with links like [[folder/file]] or [[folder/file.md]]
+    if (note.slug.includes('/')) {
+      const parts = note.slug.split('/');
+      // Also store partial paths like "2025/W51-Plan"
+      for (let i = 1; i < parts.length; i++) {
+        const partialPath = parts.slice(i).join('/');
+        if (!cache.has(partialPath.toLowerCase())) {
+          cache.set(partialPath.toLowerCase(), note.slug);
+        }
+      }
+    }
+  }
+  
+  filePathCache = cache;
+  console.log(`[Cache] File path cache built with ${cache.size} mappings for ${notes.length} notes`);
+  return cache;
+}
+
+/**
+ * Find note path based on basename (case-insensitive)
+ * Returns null if not found
+ */
+export function findNoteByBasename(basename: string): string | null {
+  if (!filePathCache) {
+    // Cache belum di-build, return null
+    return null;
+  }
+  
+  return filePathCache.get(basename.toLowerCase()) || null;
+}
+
+/**
+ * Get the cached file path map (for use in markdown processing)
+ */
+export function getFilePathCache(): Map<string, string> | null {
+  return filePathCache;
+}
+
+/**
+ * Warm all caches on server startup or after sync
+ * This prevents repeated file system scans
+ */
+export async function warmCaches(): Promise<void> {
+  console.log('[Cache] Warming caches...');
+  const startTime = Date.now();
+  
+  // Build notes cache
+  notesCache = await scanAllNotes();
+  notesCacheTimestamp = Date.now();
+  
+  // Build file path cache from notes cache
+  await buildFilePathCache();
+  
+  const duration = Date.now() - startTime;
+  console.log(`[Cache] Caches warmed in ${duration}ms (${notesCache.length} notes)`);
+}
+
+/**
+ * Invalidate all caches (call before warming)
+ */
+export function invalidateCaches(): void {
+  console.log('[Cache] Invalidating all caches...');
+  notesCache = null;
+  notesCacheTimestamp = 0;
+  filePathCache = null;
+}
+
+/**
+ * Get cache statistics for monitoring
+ */
+export function getCacheStats() {
+  return {
+    notesCount: notesCache?.length || 0,
+    filePathMappings: filePathCache?.size || 0,
+    cacheAge: notesCacheTimestamp ? Date.now() - notesCacheTimestamp : 0,
+    isCached: !!notesCache
+  };
+}
+
+/**
+ * Internal function to actually scan all notes
+ * This is the expensive operation we want to cache
+ */
+async function scanAllNotes(): Promise<Note[]> {
   const notes: Note[] = [];
 
   async function scanDir(dir: string) {
@@ -98,57 +236,4 @@ export async function getAllNotes(): Promise<Note[]> {
 
   await scanDir(VAULT_PATH);
   return notes;
-}
-
-export async function searchNotes(query: string): Promise<Note[]> {
-  const allNotes = await getAllNotes();
-  const lowerQuery = query.toLowerCase();
-
-  return allNotes.filter(note => {
-    const titleMatch = note.title.toLowerCase().includes(lowerQuery);
-    const contentMatch = note.content.toLowerCase().includes(lowerQuery);
-    return titleMatch || contentMatch;
-  });
-}
-
-// In-memory cache untuk filename -> path mapping
-let filePathCache: Map<string, string> | null = null;
-
-/**
- * Build cache of basename -> full path mappings
- * Cache diupdate setiap kali function ini dipanggil
- */
-export async function buildFilePathCache(): Promise<Map<string, string>> {
-  const cache = new Map<string, string>();
-  const notes = await getAllNotes();
-  
-  for (const note of notes) {
-    // Extract basename from slug (tanpa path, tanpa extension)
-    const basename = parse(note.slug).name;
-    // Simpan mapping basename -> full slug path
-    cache.set(basename.toLowerCase(), note.slug);
-  }
-  
-  filePathCache = cache;
-  return cache;
-}
-
-/**
- * Find note path based on basename (case-insensitive)
- * Returns null if not found
- */
-export function findNoteByBasename(basename: string): string | null {
-  if (!filePathCache) {
-    // Cache belum di-build, return null
-    return null;
-  }
-  
-  return filePathCache.get(basename.toLowerCase()) || null;
-}
-
-/**
- * Get the cached file path map (for use in markdown processing)
- */
-export function getFilePathCache(): Map<string, string> | null {
-  return filePathCache;
 }

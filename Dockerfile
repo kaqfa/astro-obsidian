@@ -20,6 +20,9 @@ FROM node:20-alpine
 
 WORKDIR /app
 
+# Install git for vault sync functionality
+RUN apk add --no-cache git
+
 # Copy package files
 COPY package*.json ./
 

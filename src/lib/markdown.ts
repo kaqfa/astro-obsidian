@@ -13,6 +13,42 @@ import { visit } from 'unist-util-visit';
 import { getFilePathCache } from './vault';
 import { parse } from 'path';
 
+// ============================================
+// MARKDOWN PROCESSING CACHE (LRU)
+// ============================================
+
+interface CacheEntry {
+  html: string;
+  timestamp: number;
+}
+
+const markdownCache = new Map<string, CacheEntry>();
+const MAX_CACHE_SIZE = 50; // Keep last 50 processed notes
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+/**
+ * Invalidate markdown cache for a specific slug or all
+ */
+export function invalidateMarkdownCache(slug?: string): void {
+  if (slug) {
+    markdownCache.delete(slug);
+    console.log(`[Cache] Invalidated markdown cache for: ${slug}`);
+  } else {
+    markdownCache.clear();
+    console.log('[Cache] Cleared all markdown cache');
+  }
+}
+
+/**
+ * LRU eviction: remove oldest entry when cache is full
+ */
+function evictOldestEntry(): void {
+  const firstKey = markdownCache.keys().next().value;
+  if (firstKey) {
+    markdownCache.delete(firstKey);
+  }
+}
+
 function remarkWikilinks() {
   return (tree: any) => {
     const cache = getFilePathCache();
@@ -45,16 +81,33 @@ function remarkWikilinks() {
         let cssClass = '';
         
         if (cache) {
-          // Extract basename (handle paths like "folder/file")
-          const basename = parse(link.trim()).name;
-          const resolvedPath = cache.get(basename.toLowerCase());
+          // Try multiple resolution strategies:
+          let resolvedPath: string | undefined;
+          
+          const linkTrimmed = link.trim();
+          const linkLower = linkTrimmed.toLowerCase();
+          
+          // Strategy 1: Try exact match (for paths like "Weekly/2025/W51-Plan")
+          resolvedPath = cache.get(linkLower);
+          
+          // Strategy 2: Try basename only (for simple links like "W51-Plan")
+          if (!resolvedPath) {
+            const basename = parse(linkTrimmed).name;
+            resolvedPath = cache.get(basename.toLowerCase());
+          }
+          
+          // Strategy 3: Try with .md extension removed
+          if (!resolvedPath && linkTrimmed.endsWith('.md')) {
+            const withoutExt = linkTrimmed.slice(0, -3);
+            resolvedPath = cache.get(withoutExt.toLowerCase());
+          }
           
           if (resolvedPath) {
             // Found! Use resolved path
             href = `/notes/${resolvedPath}`;
           } else {
             // Broken link - keep original but mark as broken
-            href = `/notes/${link.trim()}`;
+            href = `/notes/${linkTrimmed}`;
             cssClass = 'broken-wikilink';
           }
         } else {
@@ -111,7 +164,23 @@ function remarkExcalidraw() {
 }
 
 
-export async function processMarkdown(content: string): Promise<string> {
+export async function processMarkdown(content: string, slug?: string): Promise<string> {
+  // Generate cache key (use slug if provided, otherwise hash content)
+  const cacheKey = slug || content.substring(0, 100); // Simple key for now
+  
+  // Check cache
+  const cached = markdownCache.get(cacheKey);
+  if (cached) {
+    const age = Date.now() - cached.timestamp;
+    if (age < CACHE_TTL) {
+      return cached.html;
+    } else {
+      // TTL expired, remove stale entry
+      markdownCache.delete(cacheKey);
+    }
+  }
+  
+  // Process markdown (cache miss or expired)
   const result = await unified()
     .use(remarkParse)
     .use(remarkGfm)
@@ -126,7 +195,19 @@ export async function processMarkdown(content: string): Promise<string> {
     .use(rehypeStringify)
     .process(content);
 
-  return String(result);
+  const html = String(result);
+  
+  // Store in cache with LRU eviction
+  if (markdownCache.size >= MAX_CACHE_SIZE) {
+    evictOldestEntry();
+  }
+  
+  markdownCache.set(cacheKey, {
+    html,
+    timestamp: Date.now()
+  });
+
+  return html;
 }
 
 export function extractHeadings(content: string) {

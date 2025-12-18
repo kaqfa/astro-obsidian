@@ -2,6 +2,7 @@ import { defineConfig } from 'astro/config';
 import node from '@astrojs/node';
 import react from '@astrojs/react';
 import tailwindcss from '@tailwindcss/vite';
+import { cacheWarming } from './src/integrations/cache-warming.ts';
 
 export default defineConfig({
   output: 'server',
@@ -12,7 +13,10 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 4321
   },
-  integrations: [react()],
+  integrations: [
+    react(),
+    cacheWarming()
+  ],
   vite: {
     plugins: [tailwindcss()],
     optimizeDeps: {
