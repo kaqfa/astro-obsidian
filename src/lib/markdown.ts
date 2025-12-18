@@ -10,9 +10,13 @@ import GithubSlugger from 'github-slugger';
 
 import rehypeStringify from 'rehype-stringify';
 import { visit } from 'unist-util-visit';
+import { getFilePathCache } from './vault';
+import { parse } from 'path';
 
 function remarkWikilinks() {
   return (tree: any) => {
+    const cache = getFilePathCache();
+    
     visit(tree, 'text', (node, index, parent) => {
       const wikiLinkRegex = /\[\[([^\]]+)\]\]/g;
       const matches = [...node.value.matchAll(wikiLinkRegex)];
@@ -35,12 +39,38 @@ function remarkWikilinks() {
 
         const [link, alias] = linkText.split('|');
         const displayText = alias || link;
-        const href = `/notes/${link.trim()}`;
+        
+        // Resolve path using cache
+        let href: string;
+        let cssClass = '';
+        
+        if (cache) {
+          // Extract basename (handle paths like "folder/file")
+          const basename = parse(link.trim()).name;
+          const resolvedPath = cache.get(basename.toLowerCase());
+          
+          if (resolvedPath) {
+            // Found! Use resolved path
+            href = `/notes/${resolvedPath}`;
+          } else {
+            // Broken link - keep original but mark as broken
+            href = `/notes/${link.trim()}`;
+            cssClass = 'broken-wikilink';
+          }
+        } else {
+          // Fallback to original behavior jika cache belum ready
+          href = `/notes/${link.trim()}`;
+        }
 
         newNodes.push({
           type: 'link',
           url: href,
-          children: [{ type: 'text', value: displayText.trim() }]
+          children: [{ type: 'text', value: displayText.trim() }],
+          data: {
+            hProperties: {
+              class: cssClass || undefined
+            }
+          }
         });
 
         lastIndex = matchIndex + fullMatch.length;

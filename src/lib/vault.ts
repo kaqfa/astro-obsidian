@@ -110,3 +110,45 @@ export async function searchNotes(query: string): Promise<Note[]> {
     return titleMatch || contentMatch;
   });
 }
+
+// In-memory cache untuk filename -> path mapping
+let filePathCache: Map<string, string> | null = null;
+
+/**
+ * Build cache of basename -> full path mappings
+ * Cache diupdate setiap kali function ini dipanggil
+ */
+export async function buildFilePathCache(): Promise<Map<string, string>> {
+  const cache = new Map<string, string>();
+  const notes = await getAllNotes();
+  
+  for (const note of notes) {
+    // Extract basename from slug (tanpa path, tanpa extension)
+    const basename = parse(note.slug).name;
+    // Simpan mapping basename -> full slug path
+    cache.set(basename.toLowerCase(), note.slug);
+  }
+  
+  filePathCache = cache;
+  return cache;
+}
+
+/**
+ * Find note path based on basename (case-insensitive)
+ * Returns null if not found
+ */
+export function findNoteByBasename(basename: string): string | null {
+  if (!filePathCache) {
+    // Cache belum di-build, return null
+    return null;
+  }
+  
+  return filePathCache.get(basename.toLowerCase()) || null;
+}
+
+/**
+ * Get the cached file path map (for use in markdown processing)
+ */
+export function getFilePathCache(): Map<string, string> | null {
+  return filePathCache;
+}

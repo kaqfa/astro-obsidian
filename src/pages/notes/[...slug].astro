@@ -1,7 +1,7 @@
 ---
 import DashboardLayout from "../../layouts/DashboardLayout.astro";
 import { validateSession } from "../../lib/middleware";
-import { getNote } from "../../lib/vault";
+import { getNote, buildFilePathCache } from "../../lib/vault";
 import { processMarkdown, extractHeadings } from "../../lib/markdown";
 
 const { user } = await validateSession(Astro.cookies);
@@ -16,6 +16,9 @@ const note = await getNote(slug);
 if (!note) {
   return new Response("Note not found", { status: 404 });
 }
+
+// Build file path cache for wikilink resolution
+await buildFilePathCache();
 
 const html = await processMarkdown(note.content);
 const headings = extractHeadings(note.content);

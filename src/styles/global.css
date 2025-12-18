@@ -94,11 +94,19 @@
   .prose h6 {
     @apply text-text-primary font-semibold mt-8 mb-4 scroll-mt-20;
   }
-  
-  .prose h1 { @apply text-3xl; }
-  .prose h2 { @apply text-2xl border-b border-border pb-2; }
-  .prose h3 { @apply text-xl; }
-  .prose h4 { @apply text-lg; }
+
+  .prose h1 {
+    @apply text-3xl;
+  }
+  .prose h2 {
+    @apply text-2xl border-b border-border pb-2;
+  }
+  .prose h3 {
+    @apply text-xl;
+  }
+  .prose h4 {
+    @apply text-lg;
+  }
 
   .prose p {
     @apply mb-4;
@@ -106,6 +114,15 @@
 
   .prose a {
     @apply text-accent hover:text-accent-hover underline underline-offset-2 transition-colors;
+  }
+
+  /* Broken wikilinks - muted style for non-existent links */
+  .prose a.broken-wikilink {
+    @apply text-text-muted no-underline cursor-default opacity-60;
+  }
+
+  .prose a.broken-wikilink:hover {
+    @apply text-text-muted;
   }
 
   .prose strong {
@@ -185,8 +202,16 @@
     @apply bg-bg-secondary border-l-4 rounded-r-lg p-4 my-4;
   }
 
-  .prose .callout-info { @apply border-blue-500; }
-  .prose .callout-warning { @apply border-warning; }
-  .prose .callout-error { @apply border-error; }
-  .prose .callout-success { @apply border-success; }
+  .prose .callout-info {
+    @apply border-blue-500;
+  }
+  .prose .callout-warning {
+    @apply border-warning;
+  }
+  .prose .callout-error {
+    @apply border-error;
+  }
+  .prose .callout-success {
+    @apply border-success;
+  }
 }
