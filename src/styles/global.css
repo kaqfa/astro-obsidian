@@ -2,42 +2,71 @@
 @import "highlight.js/styles/github-dark.css";
 @plugin "@tailwindcss/typography";
 
-/* Custom theme for Obsidian Web Viewer */
+/* Blue Topaz Theme for Obsidian Web Viewer */
 @theme {
-  /* Colors - Dark Theme */
-  --color-bg-primary: #0f0f0f;
-  --color-bg-secondary: #171717;
-  --color-bg-tertiary: #262626;
-  --color-bg-elevated: #2d2d2d;
+  /* Colors - Dark Theme (Blue Topaz Dark) */
+  --color-bg-primary: #1e1e1e;
+  --color-bg-secondary: #252525;
+  --color-bg-tertiary: #2d2d2d;
+  --color-bg-elevated: #333333;
 
-  /* Accent */
-  --color-accent: #6366f1;
-  --color-accent-hover: #818cf8;
-  --color-accent-muted: #4f46e5;
+  /* Accent - Blue Topaz signature blue-teal */
+  --color-accent: #67b3e7;
+  --color-accent-hover: #8ac6ed;
+  --color-accent-muted: #4c9fd9;
 
-  /* Text */
-  --color-text-primary: #f5f5f5;
-  --color-text-secondary: #d4d4d4;
-  --color-text-muted: #a3a3a3;
+  /* Text - Softer contrast */
+  --color-text-primary: #dcddde;
+  --color-text-secondary: #b9bbbe;
+  --color-text-muted: #8e9297;
 
-  /* Borders */
-  --color-border: #3e3e3e;
-  --color-border-light: #525252;
+  /* Borders - Subtle blue tint */
+  --color-border: #3a3a3a;
+  --color-border-light: #4a4a4a;
 
   /* Status */
-  --color-success: #22c55e;
-  --color-warning: #f59e0b;
-  --color-error: #ef4444;
+  --color-success: #58c780;
+  --color-warning: #f5a623;
+  --color-error: #e74c3c;
+}
+
+/* Light Theme - Blue Topaz Light */
+html.light {
+  --color-bg-primary: #f5f6f8;
+  --color-bg-secondary: #ebeef3;
+  --color-bg-tertiary: #e1e4ea;
+  --color-bg-elevated: #ffffff;
+
+  /* Accent - Blue Topaz blue (slightly darker for light mode) */
+  --color-accent: #4c9fd9;
+  --color-accent-hover: #3a8fcc;
+  --color-accent-muted: #67b3e7;
+
+  /* Text */
+  --color-text-primary: #2e3338;
+  --color-text-secondary: #5c6370;
+  --color-text-muted: #9199a3;
+
+  /* Borders */
+  --color-border: #d3d7de;
+  --color-border-light: #c1c7d0;
+
+  /* Status */
+  --color-success: #58c780;
+  --color-warning: #f5a623;
+  --color-error: #e74c3c;
 }
 
 /* Base styles */
 @layer base {
   html {
     @apply antialiased;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   body {
     @apply bg-bg-primary text-text-secondary font-sans;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   h1,
@@ -51,6 +80,176 @@
 
   a {
     @apply text-accent hover:text-accent-hover transition-colors;
+  }
+}
+
+/* Light theme explicit overrides for proper contrast */
+html.light {
+  body {
+    @apply bg-white text-gray-700;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-gray-900;
+  }
+
+  /* Override Tailwind custom colors to use light theme vars */
+  .text-text-primary {
+    color: #2e3338 !important;
+  }
+
+  .text-text-secondary {
+    color: #5c6370 !important;
+  }
+
+  .text-text-muted {
+    color: #9199a3 !important;
+  }
+
+  .bg-bg-primary {
+    background-color: #f5f6f8 !important;
+  }
+
+  .bg-bg-secondary {
+    background-color: #ebeef3 !important;
+  }
+
+  .bg-bg-tertiary {
+    background-color: #e1e4ea !important;
+  }
+
+  .bg-bg-elevated {
+    background-color: #ffffff !important;
+  }
+
+  .border-border {
+    border-color: #d3d7de !important;
+  }
+
+  .border-border-light {
+    border-color: #c1c7d0 !important;
+  }
+
+  /* Prose content overrides for light theme */
+  .prose {
+    color: #5c6370 !important;
+  }
+
+  .prose h1,
+  .prose h2,
+  .prose h3,
+  .prose h4,
+  .prose h5,
+  .prose h6 {
+    color: #2e3338 !important;
+  }
+
+  .prose p {
+    color: #5c6370 !important;
+  }
+
+  .prose strong {
+    color: #2e3338 !important;
+  }
+
+  .prose li {
+    color: #5c6370 !important;
+  }
+
+  .prose a {
+    color: #4c9fd9 !important;
+  }
+
+  .prose a:hover {
+    color: #3a8fcc !important;
+  }
+
+  .prose a.broken-wikilink {
+    color: #9199a3 !important;
+  }
+
+  .prose code {
+    background-color: #e1e4ea !important;
+    color: #3a8fcc !important;
+  }
+
+  .prose pre {
+    background-color: #ebeef3 !important;
+    border-color: #d3d7de !important;
+  }
+
+  .prose pre code {
+    background-color: transparent !important;
+    color: #5c6370 !important;
+  }
+
+  .prose blockquote {
+    border-color: #4c9fd9 !important;
+    background-color: rgba(235, 238, 243, 0.5) !important;
+    color: #9199a3 !important;
+  }
+
+  .prose table th,
+  .prose table td {
+    border-color: #d3d7de !important;
+    color: #5c6370 !important;
+  }
+
+  .prose table th {
+    background-color: #ebeef3 !important;
+    color: #2e3338 !important;
+  }
+
+  .prose table tr:hover {
+    background-color: rgba(235, 238, 243, 0.5) !important;
+  }
+
+  /* Header and UI components */
+  header {
+    background-color: rgba(245, 246, 248, 0.8) !important;
+    border-bottom-color: #d3d7de !important;
+  }
+
+  /* Sidebar */
+  aside {
+    background-color: #ebeef3 !important;
+    border-right-color: #d3d7de !important;
+  }
+
+  /* Buttons and interactive elements */
+  button {
+    background-color: #e1e4ea !important;
+    border-color: #d3d7de !important;
+    color: #2e3338 !important;
+  }
+
+  button:hover {
+    background-color: #ffffff !important;
+    border-color: #4c9fd9 !important;
+  }
+
+  /* Input fields */
+  input {
+    background-color: #e1e4ea !important;
+    border-color: #d3d7de !important;
+    color: #2e3338 !important;
+  }
+
+  input::placeholder {
+    color: #9199a3 !important;
+  }
+
+  /* Specific: Sync button with Blue Topaz accent */
+  button.bg-accent,
+  button.hover\:bg-accent-hover {
+    background-color: #4c9fd9 !important;
+    color: white !important;
+  }
+
+  /* Logout button */
+  button.bg-error\/20 {
+    background-color: rgba(231, 76, 60, 0.1) !important;
+    color: #e74c3c !important;
   }
 }
 
@@ -139,6 +338,35 @@
 
   .prose pre code {
     @apply bg-transparent p-0 text-text-secondary text-sm;
+  }
+
+  /* Code block wrapper with copy button */
+  .code-block-wrapper {
+    @apply relative my-4;
+  }
+
+  .code-block-wrapper pre {
+    @apply my-0;
+  }
+
+  .copy-code-btn {
+    @apply absolute top-2 right-2 px-3 py-1.5 bg-bg-elevated hover:bg-bg-tertiary border border-border hover:border-accent/50 rounded-md text-xs font-medium text-text-muted hover:text-text-primary transition-all duration-200 cursor-pointer opacity-0 group-hover:opacity-100;
+  }
+
+  .code-block-wrapper:hover .copy-code-btn {
+    @apply opacity-100;
+  }
+
+  .copy-code-btn:active {
+    @apply scale-95;
+  }
+
+  .copy-code-btn .copy-icon {
+    @apply inline-block transition-transform;
+  }
+
+  .copy-code-btn.copied {
+    @apply border-success/50 text-success;
   }
 
   .prose blockquote {

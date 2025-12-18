@@ -39,7 +39,19 @@ const currentPath = slug;
         </h1>
         <div class="flex items-center gap-4 text-sm text-text-muted">
           <span class="flex items-center gap-1.5">
-            <span>📅</span>
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+              ></path>
+            </svg>
             {
               note.lastModified.toLocaleDateString("id-ID", {
                 year: "numeric",
@@ -49,7 +61,18 @@ const currentPath = slug;
             }
           </span>
           <span class="flex items-center gap-1.5">
-            <span>🕐</span>
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
             {
               note.lastModified.toLocaleTimeString("id-ID", {
                 hour: "2-digit",
@@ -68,25 +91,40 @@ const currentPath = slug;
     {
       headings.length > 0 && (
         <aside class="w-64 hidden xl:block shrink-0">
-          <div class="sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto">
-            <h3 class="text-sm font-semibold text-text-primary mb-3 uppercase tracking-wider">
-              On this page
-            </h3>
-            <nav class="flex flex-col gap-1">
-              {headings.map((heading) => (
-                <a
-                  href={`#${heading.slug}`}
-                  class={`text-sm text-text-muted hover:text-accent transition-colors block py-0.5
-                  ${heading.depth === 1 ? "font-medium" : ""}
-                  ${heading.depth === 2 ? "pl-2" : ""}
-                  ${heading.depth === 3 ? "pl-4" : ""}
-                  ${heading.depth > 3 ? "pl-6" : ""}
-                `}
+          <div class="sticky top-4 max-h-[calc(100vh-2rem)]">
+            <div class="bg-bg-secondary/50 border border-border rounded-lg p-4 overflow-y-auto max-h-[calc(100vh-3rem)]">
+              <h3 class="text-xs font-bold text-text-primary mb-3 uppercase tracking-wider flex items-center gap-2">
+                <svg
+                  class="w-4 h-4 text-accent"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  {heading.text}
-                </a>
-              ))}
-            </nav>
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 6h16M4 12h16M4 18h7"
+                  />
+                </svg>
+                On this page
+              </h3>
+              <nav class="flex flex-col gap-1.5">
+                {headings.map((heading) => (
+                  <a
+                    href={`#${heading.slug}`}
+                    class={`text-sm text-text-muted hover:text-accent block py-1 hover:pl-2 transition-all duration-200 border-l-2 border-transparent hover:border-accent
+                    ${heading.depth === 1 ? "font-medium" : ""}
+                    ${heading.depth === 2 ? "pl-2" : ""}
+                    ${heading.depth === 3 ? "pl-4" : ""}
+                    ${heading.depth > 3 ? "pl-6" : ""}
+                  `}
+                  >
+                    {heading.text}
+                  </a>
+                ))}
+              </nav>
+            </div>
           </div>
         </aside>
       )

@@ -12,6 +12,7 @@ import rehypeStringify from 'rehype-stringify';
 import { visit } from 'unist-util-visit';
 import { getFilePathCache } from './vault';
 import { parse } from 'path';
+import { rehypeCopyButton } from './rehype-copy-button';
 
 // ============================================
 // MARKDOWN PROCESSING CACHE (LRU)
@@ -192,6 +193,7 @@ export async function processMarkdown(content: string, slug?: string): Promise<s
     .use(rehypeSlug)
     .use(rehypeAutolinkHeadings, { behavior: 'wrap' })
     .use(rehypeHighlight)
+    .use(rehypeCopyButton)
     .use(rehypeStringify)
     .process(content);
 
