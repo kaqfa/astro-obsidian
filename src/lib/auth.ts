@@ -8,7 +8,10 @@ const adapter = new DrizzleSQLiteAdapter(db, sessionTable, userTable);
 export const lucia = new Lucia(adapter, {
   sessionCookie: {
     attributes: {
-      secure: import.meta.env.PROD
+      // Set secure to false to allow cookies over HTTP when accessing from IP
+      secure: false,
+      sameSite: "lax",
+      path: "/"
     }
   },
   getUserAttributes: (attributes) => {

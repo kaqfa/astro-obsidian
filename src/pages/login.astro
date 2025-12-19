@@ -7,6 +7,15 @@ import { validateSession } from "../lib/middleware";
 import * as bcrypt from "bcrypt";
 import { eq } from "drizzle-orm";
 
+// Debug: Check database connection and users at page load
+try {
+  console.log('[LOGIN-PAGE] Checking database state...');
+  const testConnection = await db.select().from(userTable);
+  console.log(`[LOGIN-PAGE] Database connection OK. Found ${testConnection.length} users.`);
+} catch (err) {
+  console.error('[LOGIN-PAGE] Database connection error:', err);
+}
+
 const { user } = await validateSession(Astro.cookies);
 
 if (user) {
@@ -23,26 +32,45 @@ if (Astro.request.method === "POST") {
   if (!username || !password) {
     error = "Username dan password harus diisi";
   } else {
-    const users = await db
-      .select()
-      .from(userTable)
-      .where(eq(userTable.username, username));
+    try {
+      // Add debug logging
+      console.log(`[LOGIN] Attempting login for username: ${username}`);
+      
+      const users = await db
+        .select()
+        .from(userTable)
+        .where(eq(userTable.username, username));
 
-    const foundUser = users[0];
-
-    const isValidPassword =
-      foundUser && (await bcrypt.compare(password, foundUser.passwordHash));
-    if (!isValidPassword) {
-      error = "Username atau password salah";
-    } else {
-      const session = await lucia.createSession(foundUser.id, {});
-      const sessionCookie = lucia.createSessionCookie(session.id);
-      Astro.cookies.set(
-        sessionCookie.name,
-        sessionCookie.value,
-        sessionCookie.attributes
-      );
-      return Astro.redirect("/");
+      console.log(`[LOGIN] Found ${users.length} users with username: ${username}`);
+      
+      const foundUser = users[0];
+      
+      if (!foundUser) {
+        console.log(`[LOGIN] User not found: ${username}`);
+        error = "Username atau password salah";
+      } else {
+        console.log(`[LOGIN] User found, comparing passwords...`);
+        const isValidPassword = await bcrypt.compare(password, foundUser.passwordHash);
+        console.log(`[LOGIN] Password validation result: ${isValidPassword}`);
+        
+        if (!isValidPassword) {
+          error = "Username atau password salah";
+        } else {
+          console.log(`[LOGIN] Creating session for user: ${foundUser.id}`);
+          const session = await lucia.createSession(foundUser.id, {});
+          const sessionCookie = lucia.createSessionCookie(session.id);
+          Astro.cookies.set(
+            sessionCookie.name,
+            sessionCookie.value,
+            sessionCookie.attributes
+          );
+          console.log(`[LOGIN] Session created successfully, redirecting...`);
+          return Astro.redirect("/");
+        }
+      }
+    } catch (err) {
+      console.error(`[LOGIN] Error during login:`, err);
+      error = "Terjadi kesalahan saat login";
     }
   }
 }

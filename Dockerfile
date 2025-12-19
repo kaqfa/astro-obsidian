@@ -36,9 +36,10 @@ COPY --from=builder /app/astro.config.mjs ./
 COPY --from=builder /app/tsconfig.json ./
 COPY --from=builder /app/migrate.ts ./
 COPY --from=builder /app/setup.ts ./
+COPY --from=builder /app/create-user.mjs ./
 
 # Create directories
-RUN mkdir -p vault logs
+RUN mkdir -p vault logs data
 
 # Expose port
 EXPOSE 4321

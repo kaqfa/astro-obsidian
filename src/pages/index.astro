@@ -5,12 +5,17 @@ import { getAllNotes, getFileTree } from "../lib/vault";
 
 const { user } = await validateSession(Astro.cookies);
 
+console.log(`[INDEX] Session validation result:`, { user: user ? { id: user.id, username: user.username } : null });
+
 if (!user) {
+  console.log('[INDEX] No user found, redirecting to login');
   return Astro.redirect("/login");
 }
 
+console.log('[INDEX] Loading vault data...');
 const allNotes = await getAllNotes();
 const tree = await getFileTree();
+console.log(`[INDEX] Loaded ${allNotes.length} notes and ${tree.length} tree items`);
 ---
 
 <DashboardLayout title="Dashboard">
