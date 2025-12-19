@@ -720,6 +720,177 @@ sessionTable = sqliteTable("session", {
 
 ## Appendix C: Future Requirements (v2.1+)
 
+### 🎯 Quick Wins (v2.1) - Implemented December 2024
+
+#### FR-QUICKWIN-1: Dark/Light Theme Toggle ✅
+**Priority:** High  
+**Status:** ✅ Implemented (Dec 18, 2024)
+
+**Implementation:**
+- React component with localStorage persistence
+- Blue Topaz color palette (dark & light modes)
+- System preference detection on first load
+- FOUC (Flash of Unstyled Content) prevention
+- Smooth color transitions (200ms)
+
+**Acceptance Criteria:**
+- ✅ Toggle button in header next to search
+- ✅ Theme persists across sessions
+- ✅ All UI elements support both themes
+- ✅ Proper contrast ratios (WCAG AA)
+
+**Files Modified:**
+- `src/components/ThemeToggle.tsx` (new)
+- `src/styles/global.css` (Blue Topaz theme)
+- `src/layouts/MainLayout.astro` (FOUC prevention)
+
+---
+
+#### FR-QUICKWIN-2: Copy Code Button ✅
+**Priority:** High  
+**Status:** ✅ Implemented (Dec 18, 2024)
+
+**Implementation:**
+- Rehype plugin to inject copy buttons
+- Clipboard API integration
+- Success feedback animation (checkmark)
+- Dark/light theme styling
+
+**Acceptance Criteria:**
+- ✅ Button appears on all code blocks
+- ✅ Click copies code to clipboard
+- ✅ Visual feedback on successful copy
+- ✅ Works in all modern browsers
+
+**Files Modified:**
+- `src/lib/rehype-copy-button.ts` (new)
+- `src/lib/markdown.ts` (plugin integration)
+- `src/styles/global.css` (button styling)
+- `src/layouts/DashboardLayout.astro` (click handler)
+
+---
+
+#### FR-QUICKWIN-3: Reading Mode ✅
+**Priority:** High  
+**Status:** ✅ Implemented (Dec 18, 2024)
+
+**Implementation:**
+- React component with sidebar toggle
+- localStorage state persistence
+- Smooth show/hide animations
+- Content area expansion when active
+
+**Acceptance Criteria:**
+- ✅ Toggle button in header
+- ✅ Sidebar hides/shows smoothly
+- ✅ State persists across page loads
+- ✅ Content area expands for full-width reading
+
+**Files Modified:**
+- `src/components/ReadingModeToggle.tsx` (new)
+- `src/layouts/DashboardLayout.astro` (integration)
+
+---
+
+#### FR-QUICKWIN-4: Breadcrumb Navigation ✅
+**Priority:** Medium  
+**Status:** ✅ Implemented (Dec 18, 2024)
+
+**Implementation:**
+- Astro component with slug parsing
+- Home icon + clickable path segments
+- Chevron separators
+- Current page highlighting
+
+**Acceptance Criteria:**
+- ✅ Shows full note path in header
+- ✅ Each segment is clickable link
+- ✅ Home/vault root link included
+- ✅ Responsive design for long paths
+
+**Files Modified:**
+- `src/components/Breadcrumb.astro` (new)
+- `src/layouts/DashboardLayout.astro` (header integration)
+
+---
+
+### 🚨 CRITICAL PRODUCTION ISSUES (Highest Priority)
+
+#### ISSUE-1: Wikilink Resolution - Knowledge Vault 🔴
+**Priority:** CRITICAL  
+**Status:** 🔄 Needs Fix  
+**Reported:** Dec 19, 2024
+
+**Problem:**
+Link antar halaman di vault "knowledge dinus" tidak berfungsi. Internal wikilinks (`[[note]]`) gagal resolve ke file yang benar.
+
+**Impact:**
+- Navigasi vault completely broken
+- User experience severely degraded
+- Core functionality not working
+
+**Root Cause (Suspected):**
+- Vault dengan struktur nested yang kompleks
+- File path cache mungkin tidak complete
+- Case sensitivity issues
+- Relative path resolution errors
+
+**Tasks to Fix:**
+- [ ] Debug wikilink resolution untuk nested vaults
+- [ ] Verify file path cache builds correctly
+- [ ] Test berbagai wikilink formats (`[[note]]`, `[[folder/note]]`)
+- [ ] Ensure case-insensitive matching
+- [ ] Improve broken link handling
+
+**Related Files:**
+- `src/lib/vault.ts` (file path cache)
+- `src/lib/markdown.ts` (wikilink transformation)
+- `src/lib/remark-wikilinks.ts` (wikilink parsing)
+
+---
+
+#### ISSUE-2: Performance & Loading States 🔴
+**Priority:** CRITICAL  
+**Status:** 🔄 Needs Fix  
+**Reported:** Dec 19, 2024
+
+**Problem:**
+Aplikasi terasa lambat saat akses, tidak ada loading indicators untuk memberikan feedback kepada users.
+
+**Impact:**
+- Poor user experience
+- Users tidak tahu apakah app masih responding
+- Perceived performance very slow
+
+**Tasks to Fix:**
+
+**Immediate (Loading States):**
+- [ ] Add loading spinner pada initial page load
+- [ ] Add loading state saat navigate antar notes
+- [ ] Add skeleton screens untuk content placeholder
+- [ ] Add loading indicator untuk search
+- [ ] Add progress bar untuk sync operations
+
+**Medium-term (Performance):**
+- [ ] Analyze performance bottlenecks (profiling)
+- [ ] Optimize database queries
+- [ ] Consider lazy loading untuk note content
+- [ ] Implement content caching strategies
+- [ ] Investigate SSR/SSG opportunities
+
+**Target Metrics:**
+- Initial load: < 2 seconds (currently ~4-5s)
+- Search response: < 300ms
+- Page navigation: < 500ms
+
+**Related Files:**
+- `src/pages/notes/[...slug].astro` (note rendering)
+- `src/components/SearchBar.tsx` (search)
+- `src/lib/vault.ts` (file operations)
+- `src/lib/db/index.ts` (database)
+
+---
+
 ### FR-GRAPH: Graph View System
 
 #### FR-GRAPH-1: Graph Data Generation ⏳
@@ -1159,8 +1330,9 @@ GET    /api/graph           # Graph data
 |---------|------|---------|--------|
 | 1.0 | Dec 2024 | Initial SRS document | Fahri Firdausillah |
 | 2.0 | Dec 2024 | Updated for v2.0 implementation + Future roadmap | Fahri Firdausillah |
+| 2.1 | Dec 19, 2024 | Added Quick Wins v2.1 (theme toggle, copy code, reading mode, breadcrumb) + Critical production issues | Fahri Firdausillah |
 
 ---
 
-*Last updated: December 2024*  
-*Next review: Q1 2025 (during v2.1 planning)*
+*Last updated: December 19, 2024*  
+*Next review: Q1 2025 (during critical issue fixes)*
