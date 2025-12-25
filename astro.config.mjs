@@ -17,6 +17,12 @@ export default defineConfig({
     react(),
     cacheWarming()
   ],
+  // Enable prefetching for faster navigation
+  prefetch: true,
+  // Enable experimental view transitions for smoother page loads
+  experimental: {
+    clientPrerender: true
+  },
   vite: {
     plugins: [tailwindcss()],
     optimizeDeps: {

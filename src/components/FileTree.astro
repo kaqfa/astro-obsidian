@@ -62,6 +62,7 @@ const { tree, depth = 0 } = Astro.props;
       return (
         <a
           href={href}
+          data-prefetch
           class="flex items-center gap-2 py-1 px-2 hover:bg-bg-tertiary rounded text-text-muted hover:text-accent transition-colors text-base group"
           style={`padding-left: ${indent + 8}px`}
         >
