@@ -7,7 +7,11 @@
     "build": "astro build",
     "build:check": "astro check && astro build",
     "preview": "astro preview",
-    "typecheck": "astro check"
+    "typecheck": "astro check",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@astrojs/node": "^9.5.1",
@@ -42,11 +46,19 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.1",
+    "@testing-library/user-event": "^14.6.1",
     "@types/bcrypt": "^6.0.0",
     "@types/better-sqlite3": "^7.6.12",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
+    "@vitest/coverage-istanbul": "^4.0.16",
+    "@vitest/ui": "^4.0.16",
     "hastscript": "^9.0.1",
-    "typescript": "^5.6.3"
+    "jsdom": "^27.0.1",
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.4"
   }
 }

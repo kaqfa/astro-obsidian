@@ -33,3 +33,4 @@ tmp/
 
 # Development/testing files
 cookies.txt
+coverage/
