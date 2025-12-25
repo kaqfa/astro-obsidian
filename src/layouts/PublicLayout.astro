@@ -1,0 +1,45 @@
+---
+import MainLayout from "./MainLayout.astro";
+
+interface Props {
+  title: string;
+  currentPath?: string;
+}
+
+const { title } = Astro.props;
+---
+
+<MainLayout title={title}>
+  <div class="min-h-screen bg-bg-primary">
+    <!-- Public Note Header -->
+    <header class="border-b border-border bg-bg-secondary/50 backdrop-blur">
+      <div class="max-w-6xl mx-auto px-6 py-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <a href="/" class="text-text-muted hover:text-text-primary transition-colors">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 001 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+              </svg>
+            </a>
+            <h1 class="text-xl font-bold text-text-primary">Public Note</h1>
+          </div>
+          <a href="/login" class="text-sm text-text-muted hover:text-accent transition-colors">
+            Login
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <main class="max-w-4xl mx-auto px-6 py-8">
+      <slot />
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-border py-6 mt-12">
+      <div class="max-w-4xl mx-auto px-6 text-center text-sm text-text-muted">
+        <p>Powered by <a href="/" class="text-accent hover:underline">Obsidian Web Viewer</a></p>
+      </div>
+    </footer>
+  </div>
+</MainLayout>

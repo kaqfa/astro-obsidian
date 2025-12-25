@@ -3,6 +3,7 @@ import { validateSession } from "../../lib/middleware";
 import { syncVault } from "../../lib/git";
 import { invalidateCaches, warmCaches } from "../../lib/vault";
 import { invalidateMarkdownCache } from "../../lib/markdown";
+import { refreshGlobalCache } from "../../integrations/cache-warming";
 
 export const POST: APIRoute = async ({ cookies }) => {
   const { user } = await validateSession(cookies);
@@ -21,6 +22,7 @@ export const POST: APIRoute = async ({ cookies }) => {
     invalidateCaches();
     invalidateMarkdownCache(); // Clear all markdown cache
     await warmCaches(); // Rebuild notes and file path caches
+    await refreshGlobalCache(); // Refresh global layout cache
   }
 
   return new Response(JSON.stringify(result), {

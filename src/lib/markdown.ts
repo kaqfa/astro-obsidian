@@ -24,8 +24,8 @@ interface CacheEntry {
 }
 
 const markdownCache = new Map<string, CacheEntry>();
-const MAX_CACHE_SIZE = 50; // Keep last 50 processed notes
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+const MAX_CACHE_SIZE = 500; // Keep last 500 processed notes (increased from 50)
+const CACHE_TTL = 30 * 60 * 1000; // 30 minutes (increased from 5 minutes)
 
 /**
  * Invalidate markdown cache for a specific slug or all

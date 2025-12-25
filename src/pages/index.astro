@@ -13,9 +13,12 @@ if (!user) {
 }
 
 console.log('[INDEX] Loading vault data...');
-const allNotes = await getAllNotes();
-const tree = await getFileTree();
+const allNotes = Astro.locals.allNotes || await getAllNotes();
+const tree = Astro.locals.fileTree || await getFileTree();
 console.log(`[INDEX] Loaded ${allNotes.length} notes and ${tree.length} tree items`);
+
+// Add cache headers for dashboard
+Astro.response.headers.set('Cache-Control', 'private, max-age=60, stale-while-revalidate=120');
 ---
 
 <DashboardLayout title="Dashboard">

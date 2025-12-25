@@ -1,14 +1,10 @@
 ---
 import DashboardLayout from "../../layouts/DashboardLayout.astro";
+import PublicLayout from "../../layouts/PublicLayout.astro";
 import { validateSession } from "../../lib/middleware";
 import { getNote } from "../../lib/vault";
 import { processMarkdown, extractHeadings } from "../../lib/markdown";
-
-const { user } = await validateSession(Astro.cookies);
-
-if (!user) {
-  return Astro.redirect("/login");
-}
+import { isNotePublic } from "../../lib/public-notes";
 
 const slug = Astro.params.slug || "";
 const note = await getNote(slug);
@@ -17,16 +13,30 @@ if (!note) {
   return new Response("Note not found", { status: 404 });
 }
 
+// Check if user is logged in OR note is public
+const { user } = await validateSession(Astro.cookies);
+const isPublic = await isNotePublic(slug);
+
+if (!user && !isPublic) {
+  return Astro.redirect("/login");
+}
+
 // Cache is warmed at server level, no need to build here
 const html = await processMarkdown(note.content, slug);
 const headings = extractHeadings(note.content);
 
+// Add cache headers for better performance
+Astro.response.headers.set('Cache-Control', isPublic ? 'public, max-age=300' : 'private, max-age=300, stale-while-revalidate=600');
+
 // Extract breadcrumb from slug
 const breadcrumbs = slug.split("/").filter(Boolean);
 const currentPath = slug;
+
+// Use PublicLayout if note is public and user not logged in
+const Layout = (!user && isPublic) ? PublicLayout : DashboardLayout;
 ---
 
-<DashboardLayout title={note.title} currentPath={currentPath}>
+<Layout title={note.title} currentPath={currentPath} isPublic={isPublic}>
   <div class="max-w-6xl mx-auto flex gap-8">
     <!-- Main Article -->
     <div class="flex-1 min-w-0">
@@ -150,5 +160,52 @@ const currentPath = slug;
         });
       }
     });
+  </script>
+
+  <!-- Track recent note view -->
+  <script is:inline define:vars={{ note }}>
+    (function() {
+      const STORAGE_KEY = 'obsidian-recent-notes';
+      const MAX_RECENT_NOTES = 10;
+
+      function getRecentNotes() {
+        try {
+          const stored = localStorage.getItem(STORAGE_KEY);
+          return stored ? JSON.parse(stored) : [];
+        } catch {
+          return [];
+        }
+      }
+
+      function addRecentNote(note) {
+        try {
+          const recent = getRecentNotes();
+          const now = Date.now();
+
+          // Remove existing entry with same slug
+          const filtered = recent.filter(r => r.slug !== note.slug);
+
+          // Add new entry
+          const entry = {
+            slug: note.slug,
+            title: note.title,
+            path: note.path,
+            viewedAt: now
+          };
+
+          const updated = [entry, ...filtered].slice(0, MAX_RECENT_NOTES);
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+        } catch (e) {
+          console.error('[RecentNotes] Failed to save:', e);
+        }
+      }
+
+      // Track this note view
+      addRecentNote({
+        slug: { note.slug },
+        title: { note.title },
+        path: { note.path }
+      });
+    })();
   </script>
 </DashboardLayout>
