@@ -2,6 +2,9 @@ node_modules/
 dist/
 .astro/
 .env
+.env.test
+.env.local
+.env.production
 
 # Auth database
 auth.db
@@ -10,6 +13,9 @@ auth.db-wal
 local.db
 local.db-shm
 local.db-wal
+test.db
+test.db-shm
+test.db-wal
 *.db
 
 # Vault folder (jangan di-commit)

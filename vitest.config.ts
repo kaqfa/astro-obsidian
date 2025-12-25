@@ -10,6 +10,13 @@ export default defineConfig({
     setupFiles: ['./test/setup.ts'],
     include: ['**/*.{test,spec}.{js,ts,tsx}'],
     exclude: ['node_modules', 'dist', '.astro'],
+    // Use test environment file
+    env: {
+      NODE_ENV: 'test',
+      TURSO_DATABASE_URL: 'file:test.db',
+      HTTPS: 'false',
+      GIT_REPO_URL: '',
+    },
     coverage: {
       provider: 'istanbul',
       reporter: ['text', 'json', 'html'],
