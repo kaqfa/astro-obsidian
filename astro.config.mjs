@@ -3,6 +3,7 @@ import node from '@astrojs/node';
 import react from '@astrojs/react';
 import tailwindcss from '@tailwindcss/vite';
 import { cacheWarming } from './src/integrations/cache-warming.ts';
+import { securityPlugin } from './src/lib/vite-security-plugin.ts';
 
 export default defineConfig({
   output: 'server',
@@ -24,7 +25,7 @@ export default defineConfig({
     clientPrerender: true
   },
   vite: {
-    plugins: [tailwindcss()],
+    plugins: [tailwindcss(), securityPlugin()],
     optimizeDeps: {
       exclude: ['lucia']
     }

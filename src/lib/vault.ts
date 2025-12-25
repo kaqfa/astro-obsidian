@@ -1,6 +1,7 @@
 import { readdir, readFile, stat } from 'fs/promises';
 import { join, relative, parse } from 'path';
 import matter from 'gray-matter';
+import { validateSlug } from './path-validation.js';
 
 const VAULT_PATH = './vault';
 
@@ -55,20 +56,23 @@ export async function getFileTree(dir: string = VAULT_PATH): Promise<FileTreeIte
 
 export async function getNote(slug: string): Promise<Note | null> {
   try {
-    const filePath = join(VAULT_PATH, `${slug}.md`);
+    // Validate slug BEFORE file access to prevent path traversal
+    const validatedSlug = validateSlug(slug);
+    const filePath = join(VAULT_PATH, `${validatedSlug}.md`);
     const content = await readFile(filePath, 'utf-8');
     const { data, content: markdown } = matter(content);
     const stats = await stat(filePath);
 
     return {
-      slug,
-      title: data.title || parse(slug).name,
-      path: slug,
+      slug: validatedSlug,
+      title: data.title || parse(validatedSlug).name,
+      path: validatedSlug,
       content: markdown,
       frontmatter: data,
       lastModified: stats.mtime
     };
-  } catch {
+  } catch (error) {
+    console.error('[VAULT] Error reading note:', slug, error);
     return null;
   }
 }
