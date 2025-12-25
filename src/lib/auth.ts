@@ -8,10 +8,12 @@ const adapter = new DrizzleSQLiteAdapter(db, sessionTable, userTable);
 export const lucia = new Lucia(adapter, {
   sessionCookie: {
     attributes: {
-      // Set secure to false to allow cookies over HTTP when accessing from IP
-      secure: false,
+      // Set secure to true only if using HTTPS
+      // For Domainesia/Passenger, check HTTPS environment variable
+      secure: process.env.HTTPS === 'true',
       sameSite: "lax",
-      path: "/"
+      path: "/",
+      httpOnly: true
     }
   },
   getUserAttributes: (attributes) => {

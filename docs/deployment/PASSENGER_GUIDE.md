@@ -94,9 +94,14 @@ GIT_REPO_URL=https://github.com/username/vault.git
 
 # Environment
 NODE_ENV=production
+
+# HTTPS Protocol (set to 'true' if using HTTPS/SSL)
+HTTPS=false
 ```
 
 Tekan `Ctrl+O` lalu `Ctrl+X` untuk save dan exit (nano).
+
+**PENTING**: Jika domain sudah menggunakan HTTPS/SSL certificate, set `HTTPS=true` agar cookies berfungsi dengan aman.
 
 ---
 
@@ -229,6 +234,53 @@ Passenger auto-assign port, tidak perlu config manual. Jika ada masalah, restart
 ```bash
 chmod -R 755 ~/public_html/obsidian-web
 ```
+
+### Redirect Loop (ERR_TOO_MANY_REDIRECTS)
+
+Error ini terjadi karena session tidak tersimpan dengan baik. Solusi:
+
+**1. Pastikan database sudah ter-initialize dengan benar:**
+
+```bash
+cd ~/public_html/obsidian-web
+source /home/username/nodevenv/obsidian-web/20/bin/activate
+
+# Cek apakah migration sudah dijalankan
+npx tsx migrate.ts
+```
+
+**2. Cek environment variables - pastikan HTTPS sesuai:**
+
+```bash
+cat .env | grep HTTPS
+```
+
+- Jika menggunakan HTTP (tanpa SSL): `HTTPS=false`
+- Jika menggunakan HTTPS (dengan SSL): `HTTPS=true`
+
+**3. Cek apakah ada user di database:**
+
+```bash
+npx tsx -e "import { db } from './dist/lib/db/index.js'; import { userTable } from './dist/lib/db/schema.js'; const users = await db.select().from(userTable); console.log('Users:', users);"
+```
+
+Jika tidak ada user, jalankan setup:
+
+```bash
+npx tsx setup.ts
+```
+
+**4. Restart aplikasi:**
+
+```bash
+touch tmp/restart.txt
+```
+
+**5. Clear cookies di browser:**
+
+- Buka Developer Tools (F12)
+- Application → Cookies → Remove all
+- Refresh dan coba login lagi
 
 ---
 
