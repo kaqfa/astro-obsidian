@@ -59,11 +59,25 @@ if (Astro.request.method === "POST") {
           console.log(`[LOGIN] Creating session for user: ${foundUser.id}`);
           const session = await lucia.createSession(foundUser.id, {});
           const sessionCookie = lucia.createSessionCookie(session.id);
+
+          console.log(`[LOGIN] Cookie details:`, {
+            name: sessionCookie.name,
+            valueLength: sessionCookie.value?.length || 0,
+            attributes: sessionCookie.attributes
+          });
+
           Astro.cookies.set(
             sessionCookie.name,
             sessionCookie.value,
             sessionCookie.attributes
           );
+
+          console.log(`[LOGIN] Cookie set via Astro.cookies.set()`);
+          console.log(`[LOGIN] Current cookies after set:`, {
+            hasSession: !!Astro.cookies.get(sessionCookie.name),
+            sessionValue: Astro.cookies.get(sessionCookie.name)?.value?.substring(0, 10) + '...'
+          });
+
           console.log(`[LOGIN] Session created successfully, redirecting...`);
           return Astro.redirect("/");
         }
