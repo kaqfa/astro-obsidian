@@ -7,15 +7,3 @@
 PassengerBuffering off
 PassengerBufferResponse off
 
-# Disable all caching
-<IfModule mod_headers.c>
-    Header unset ETag
-    Header always set Cache-Control "no-store, no-cache, must-revalidate, private"
-    Header always set Pragma "no-cache"
-    Header always set Expires "0"
-</IfModule>
-
-# Disable browser caching
-<IfModule mod_expires.c>
-    ExpiresActive Off
-</IfModule>
