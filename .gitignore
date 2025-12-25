@@ -7,12 +7,26 @@ dist/
 auth.db
 auth.db-shm
 auth.db-wal
+local.db
+local.db-shm
+local.db-wal
 *.db
 
 # Vault folder (jangan di-commit)
 vault/
 deploy/
 
+# Session storage
+sessions/
+
+# Logs
+logs/
+*.log
+
 # OS
 .DS_Store
 Thumbs.db
+
+# Temporary files
+tmp/
+*.tmp
