@@ -30,3 +30,6 @@ Thumbs.db
 # Temporary files
 tmp/
 *.tmp
+
+# Development/testing files
+cookies.txt
