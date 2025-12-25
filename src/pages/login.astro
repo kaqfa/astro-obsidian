@@ -7,6 +7,11 @@ import { validateSession } from "../lib/middleware";
 import * as bcrypt from "bcrypt";
 import { eq } from "drizzle-orm";
 
+// IMPORTANT: Disable caching for login page
+Astro.response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+Astro.response.headers.set('Pragma', 'no-cache');
+Astro.response.headers.set('Expires', '0');
+
 // Debug: Check database connection and users at page load
 try {
   console.log('[LOGIN-PAGE] Checking database state...');
@@ -18,7 +23,10 @@ try {
 
 const { user } = await validateSession(Astro.cookies);
 
+console.log(`[LOGIN-PAGE] User validation result:`, { user: user ? { id: user.id, username: user.username } : null });
+
 if (user) {
+  console.log('[LOGIN-PAGE] User already logged in, redirecting to /');
   return Astro.redirect("/");
 }
 
