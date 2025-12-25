@@ -1,4 +1,9 @@
-# Disable Passenger caching
+# DO NOT REMOVE OR MODIFY. CLOUDLINUX ENV VARS CONFIGURATION BEGIN
+<IfModule Litespeed>
+</IfModule>
+# DO NOT REMOVE OR MODIFY. CLOUDLINUX ENV VARS CONFIGURATION END
+
+# Disable Passenger caching to prevent redirect loops
 PassengerBuffering off
 PassengerBufferResponse off
 
@@ -14,12 +19,3 @@ PassengerBufferResponse off
 <IfModule mod_expires.c>
     ExpiresActive Off
 </IfModule>
-
-# Ensure requests are passed to the app
-RewriteEngine On
-# Don't rewrite static files
-RewriteCond %{REQUEST_FILENAME} -f [OR]
-RewriteCond %{REQUEST_FILENAME} -d
-RewriteRule ^ - [L]
-# Pass everything else to Passenger
-RewriteRule ^(.*)$ /$1 [PT,L]
