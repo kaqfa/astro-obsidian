@@ -3,6 +3,10 @@ import DashboardLayout from "../layouts/DashboardLayout.astro";
 import { validateSession } from "../lib/middleware";
 import { getAllNotes, getFileTree } from "../lib/vault";
 
+console.log(`[INDEX] ===== PAGE LOADED =====`);
+console.log(`[INDEX] Request URL:`, Astro.request.url);
+console.log(`[INDEX] Request headers:`, Object.fromEntries(Astro.request.headers.entries()));
+
 // IMPORTANT: Disable caching for authenticated pages
 Astro.response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
 Astro.response.headers.set('Pragma', 'no-cache');
