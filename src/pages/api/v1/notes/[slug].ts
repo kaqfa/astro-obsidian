@@ -1,7 +1,8 @@
 import type { APIRoute } from 'astro';
 import { validateApiKey } from '../../../../lib/api-keys';
-import { getNote } from '../../../../lib/vault';
+import { createErrorResponse } from '../../../../lib/api-utils';
 import { isNotePublic } from '../../../../lib/public-notes';
+import { getNote } from '../../../../lib/vault';
 
 /**
  * GET /api/v1/notes/[slug] - Get a specific note
@@ -12,50 +13,44 @@ export const GET: APIRoute = async ({ params, request }) => {
   const note = await getNote(slug);
 
   if (!note) {
-    return new Response(JSON.stringify({ error: 'Note not found' }), {
-      status: 404,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return createErrorResponse('Note not found', 404);
   }
 
   // Check if note is public or user has valid API key
-  const isPublic = await isNotePublic(slug);
+  const isPublicNote = await isNotePublic(slug);
 
-  if (!isPublic) {
+  if (!isPublicNote) {
     const authHeader = request.headers.get('authorization');
     const apiKey = authHeader?.replace('Bearer ', '');
 
     if (!apiKey) {
-      return new Response(JSON.stringify({ error: 'Authentication required' }), {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return createErrorResponse('Authentication required', 401);
     }
 
     const auth = await validateApiKey(apiKey);
     if (!auth) {
-      return new Response(JSON.stringify({ error: 'Invalid API key' }), {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return createErrorResponse('Invalid API key', 401);
     }
   }
 
-  return new Response(JSON.stringify({
-    success: true,
-    data: {
-      slug: note.slug,
-      title: note.title,
-      path: note.path,
-      content: note.content,
-      frontmatter: note.frontmatter,
-      lastModified: note.lastModified.toISOString()
+  return new Response(
+    JSON.stringify({
+      success: true,
+      data: {
+        slug: note.slug,
+        title: note.title,
+        path: note.path,
+        content: note.content,
+        frontmatter: note.frontmatter,
+        lastModified: note.lastModified.toISOString(),
+      },
+    }),
+    {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': isPublicNote ? 'public, max-age=300' : 'private, max-age=60',
+      },
     }
-  }), {
-    status: 200,
-    headers: {
-      'Content-Type': 'application/json',
-      'Cache-Control': isPublic ? 'public, max-age=300' : 'private, max-age=60'
-    }
-  });
+  );
 };

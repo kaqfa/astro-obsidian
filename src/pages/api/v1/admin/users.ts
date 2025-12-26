@@ -1,54 +1,22 @@
+import bcrypt from 'bcrypt';
 import type { APIRoute } from 'astro';
-import { validateApiKey, isAdmin, getAllUsers, createUser, updateUserRole, deleteUser } from '../../../../lib/api-keys';
+import { getAllUsers, createUser } from '../../../../lib/api-keys';
+import { requireAdminApiKey, createSuccessResponse, createErrorResponse } from '../../../../lib/api-utils';
 
 /**
  * GET /api/v1/admin/users - List all users (admin only)
  */
 export const GET: APIRoute = async ({ request }) => {
-  const authHeader = request.headers.get('authorization');
-  const apiKey = authHeader?.replace('Bearer ', '');
-
-  if (!apiKey) {
-    return new Response(JSON.stringify({ error: 'Missing API key' }), {
-      status: 401,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
-
-  const auth = await validateApiKey(apiKey);
-  if (!auth) {
-    return new Response(JSON.stringify({ error: 'Invalid API key' }), {
-      status: 401,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
-
-  // Check if user is admin
-  if (!(await isAdmin(auth.userId))) {
-    return new Response(JSON.stringify({ error: 'Forbidden - Admin only' }), {
-      status: 403,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
-
   try {
+    await requireAdminApiKey(request);
     const users = await getAllUsers();
 
-    return new Response(JSON.stringify({
-      success: true,
-      data: users
-    }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  } catch (error: any) {
-    return new Response(JSON.stringify({
-      success: false,
-      error: error.message || 'Failed to fetch users'
-    }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return createSuccessResponse(users, 200);
+  } catch (error) {
+    if (error instanceof Error) {
+      return createErrorResponse(error.message, 500);
+    }
+    return createErrorResponse('Failed to fetch users', 500);
   }
 };
 
@@ -56,61 +24,27 @@ export const GET: APIRoute = async ({ request }) => {
  * POST /api/v1/admin/users - Create a new user (admin only)
  */
 export const POST: APIRoute = async ({ request }) => {
-  const authHeader = request.headers.get('authorization');
-  const apiKey = authHeader?.replace('Bearer ', '');
-
-  if (!apiKey) {
-    return new Response(JSON.stringify({ error: 'Missing API key' }), {
-      status: 401,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
-
-  const auth = await validateApiKey(apiKey);
-  if (!auth || !(await isAdmin(auth.userId))) {
-    return new Response(JSON.stringify({ error: 'Forbidden - Admin only' }), {
-      status: 403,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
-
   try {
+    await requireAdminApiKey(request);
     const body = await request.json();
     const { username, password, role = 'user' } = body;
 
     if (!username || !password) {
-      return new Response(JSON.stringify({ error: 'Missing required fields' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return createErrorResponse('Missing required fields', 400);
     }
 
     if (role !== 'admin' && role !== 'user') {
-      return new Response(JSON.stringify({ error: 'Invalid role' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return createErrorResponse('Invalid role', 400);
     }
 
-    const bcrypt = await import('bcrypt');
     const passwordHash = await bcrypt.hash(password, 10);
-
     const userId = await createUser(username, passwordHash, role);
 
-    return new Response(JSON.stringify({
-      success: true,
-      data: { id: userId, username, role }
-    }), {
-      status: 201,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  } catch (error: any) {
-    return new Response(JSON.stringify({
-      success: false,
-      error: error.message || 'Failed to create user'
-    }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return createSuccessResponse({ id: userId, username, role }, 201);
+  } catch (error) {
+    if (error instanceof Error) {
+      return createErrorResponse(error.message, 500);
+    }
+    return createErrorResponse('Failed to create user', 500);
   }
 };

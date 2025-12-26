@@ -1,0 +1,9 @@
+node_modules
+dist
+.astro
+coverage
+*.md
+!CLAUDE.md
+package-lock.json
+pnpm-lock.yaml
+yarn.lock

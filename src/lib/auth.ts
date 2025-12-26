@@ -1,7 +1,7 @@
-import { Lucia } from "lucia";
-import { DrizzleSQLiteAdapter } from "@lucia-auth/adapter-drizzle";
-import { db } from "./db";
-import { userTable, sessionTable } from "./db/schema";
+import { db } from './db';
+import { userTable, sessionTable } from './db/schema';
+import { DrizzleSQLiteAdapter } from '@lucia-auth/adapter-drizzle';
+import { Lucia } from 'lucia';
 
 const adapter = new DrizzleSQLiteAdapter(db, sessionTable, userTable);
 
@@ -26,7 +26,7 @@ console.log('[AUTH] Environment:', {
   HTTPS: process.env.HTTPS,
   FORCE_HTTPS: process.env.FORCE_HTTPS,
   isSecure: isSecureEnvironment(),
-  isProd: import.meta.env.PROD
+  isProd: import.meta.env.PROD,
 });
 
 export const lucia = new Lucia(adapter, {
@@ -34,19 +34,19 @@ export const lucia = new Lucia(adapter, {
     attributes: {
       // Auto-detect secure environment
       secure: isSecureEnvironment(),
-      sameSite: "lax",
-      path: "/",
-      httpOnly: true
-    }
+      sameSite: 'lax',
+      path: '/',
+      httpOnly: true,
+    },
   },
   getUserAttributes: (attributes) => {
     return {
-      username: attributes.username
+      username: attributes.username,
     };
-  }
+  },
 });
 
-declare module "lucia" {
+declare module 'lucia' {
   interface Register {
     Lucia: typeof lucia;
     DatabaseUserAttributes: {

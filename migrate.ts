@@ -1,7 +1,15 @@
 import { createClient } from '@libsql/client';
-import { drizzle } from 'drizzle-orm/libsql';
-import { sql } from 'drizzle-orm';
 import * as dotenv from 'dotenv';
+import { sql } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/libsql';
+import { createClient } from '@libsql/client';
+import * as dotenv from 'dotenv';
+import { sql } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/libsql';
+import { createClient } from '@libsql/client';
+import * as dotenv from 'dotenv';
+import { sql } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/libsql';
 
 // Load environment variables
 dotenv.config();
@@ -19,7 +27,7 @@ async function runMigration() {
     // Create database client with environment config
     const client = createClient({
       url: dbUrl,
-      authToken: authToken || undefined
+      authToken: authToken || undefined,
     });
 
     const db = drizzle(client);

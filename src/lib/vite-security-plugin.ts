@@ -1,6 +1,5 @@
 import type { Plugin } from 'vite';
 
-// Sensitive paths that should never be accessible
 const SENSITIVE_PATHS = [
   '/.git',
   '/.env',
@@ -50,10 +49,11 @@ export function securityPlugin(): Plugin {
           }
 
           // Check if path is sensitive
-          const isSensitive = SENSITIVE_PATHS.some(sensitivePath =>
-            pathname === sensitivePath ||
-            pathname.startsWith(sensitivePath + '/') ||
-            pathname.startsWith(sensitivePath + '\\')
+          const isSensitive = SENSITIVE_PATHS.some(
+            (sensitivePath) =>
+              pathname === sensitivePath ||
+              pathname.startsWith(sensitivePath + '/') ||
+              pathname.startsWith(sensitivePath + '\\')
           );
 
           if (isSensitive) {

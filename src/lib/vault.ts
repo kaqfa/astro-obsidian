@@ -1,7 +1,7 @@
-import { readdir, readFile, stat } from 'fs/promises';
-import { join, relative, parse } from 'path';
-import matter from 'gray-matter';
 import { validateSlug } from './path-validation.js';
+import { readdir, readFile, stat } from 'fs/promises';
+import matter from 'gray-matter';
+import { join, relative, parse } from 'path';
 
 const VAULT_PATH = './vault';
 
@@ -27,7 +27,7 @@ export async function getFileTree(dir: string = VAULT_PATH): Promise<FileTreeIte
 
   for (const item of items) {
     if (item.startsWith('.')) continue;
-    
+
     const fullPath = join(dir, item);
     const stats = await stat(fullPath);
     const relativePath = relative(VAULT_PATH, fullPath);
@@ -37,13 +37,13 @@ export async function getFileTree(dir: string = VAULT_PATH): Promise<FileTreeIte
         name: item,
         path: relativePath,
         type: 'folder',
-        children: await getFileTree(fullPath)
+        children: await getFileTree(fullPath),
       });
     } else if (item.endsWith('.md')) {
       tree.push({
         name: item.replace('.md', ''),
         path: relativePath,
-        type: 'file'
+        type: 'file',
       });
     }
   }
@@ -69,7 +69,7 @@ export async function getNote(slug: string): Promise<Note | null> {
       path: validatedSlug,
       content: markdown,
       frontmatter: data,
-      lastModified: stats.mtime
+      lastModified: stats.mtime,
     };
   } catch (error) {
     console.error('[VAULT] Error reading note:', slug, error);
@@ -82,7 +82,7 @@ export async function getAllNotes(): Promise<Note[]> {
   if (notesCache) {
     return notesCache;
   }
-  
+
   // Otherwise, scan and cache
   console.log('[Cache] Cache miss - scanning all notes...');
   notesCache = await scanAllNotes();
@@ -94,7 +94,7 @@ export async function searchNotes(query: string): Promise<Note[]> {
   const allNotes = await getAllNotes();
   const lowerQuery = query.toLowerCase();
 
-  return allNotes.filter(note => {
+  return allNotes.filter((note) => {
     const titleMatch = note.title.toLowerCase().includes(lowerQuery);
     const contentMatch = note.content.toLowerCase().includes(lowerQuery);
     return titleMatch || contentMatch;
@@ -119,18 +119,18 @@ let filePathCache: Map<string, string> | null = null;
 export async function buildFilePathCache(): Promise<Map<string, string>> {
   const cache = new Map<string, string>();
   // Use cached notes if available to avoid re-scanning
-  const notes = notesCache || await getAllNotes();
-  
+  const notes = notesCache || (await getAllNotes());
+
   for (const note of notes) {
     // Store multiple mappings for better wikilink resolution:
-    
+
     // 1. Basename only (e.g., "W51-Plan" -> "Weekly/2025/W51-Plan")
     const basename = parse(note.slug).name;
     cache.set(basename.toLowerCase(), note.slug);
-    
+
     // 2. Full slug (e.g., "Weekly/2025/W51-Plan" -> "Weekly/2025/W51-Plan")
     cache.set(note.slug.toLowerCase(), note.slug);
-    
+
     // 3. Handle paths with or without extension
     // This helps with links like [[folder/file]] or [[folder/file.md]]
     if (note.slug.includes('/')) {
@@ -144,9 +144,11 @@ export async function buildFilePathCache(): Promise<Map<string, string>> {
       }
     }
   }
-  
+
   filePathCache = cache;
-  console.log(`[Cache] File path cache built with ${cache.size} mappings for ${notes.length} notes`);
+  console.log(
+    `[Cache] File path cache built with ${cache.size} mappings for ${notes.length} notes`
+  );
   return cache;
 }
 
@@ -159,7 +161,7 @@ export function findNoteByBasename(basename: string): string | null {
     // Cache belum di-build, return null
     return null;
   }
-  
+
   return filePathCache.get(basename.toLowerCase()) || null;
 }
 
@@ -177,14 +179,14 @@ export function getFilePathCache(): Map<string, string> | null {
 export async function warmCaches(): Promise<void> {
   console.log('[Cache] Warming caches...');
   const startTime = Date.now();
-  
+
   // Build notes cache
   notesCache = await scanAllNotes();
   notesCacheTimestamp = Date.now();
-  
+
   // Build file path cache from notes cache
   await buildFilePathCache();
-  
+
   const duration = Date.now() - startTime;
   console.log(`[Cache] Caches warmed in ${duration}ms (${notesCache.length} notes)`);
 }
@@ -207,7 +209,7 @@ export function getCacheStats() {
     notesCount: notesCache?.length || 0,
     filePathMappings: filePathCache?.size || 0,
     cacheAge: notesCacheTimestamp ? Date.now() - notesCacheTimestamp : 0,
-    isCached: !!notesCache
+    isCached: !!notesCache,
   };
 }
 

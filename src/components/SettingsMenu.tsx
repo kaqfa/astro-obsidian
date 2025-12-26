@@ -44,7 +44,7 @@ export default function SettingsMenu({ currentSlug, isPublic = false }: Settings
       const res = await fetch('/api/v1/me/keys', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: newKeyName })
+        body: JSON.stringify({ name: newKeyName }),
       });
       const data = await res.json();
       if (data.success) {
@@ -85,8 +85,8 @@ export default function SettingsMenu({ currentSlug, isPublic = false }: Settings
       const res = await fetch(`/api/v1/share/${encodedSlug}`, {
         method,
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
 
       const data = await res.json();
@@ -145,10 +145,7 @@ export default function SettingsMenu({ currentSlug, isPublic = false }: Settings
 
         {isOpen && (
           <>
-            <div
-              className="fixed inset-0 z-10"
-              onClick={() => setIsOpen(false)}
-            />
+            <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
             <div className="absolute bottom-full left-0 right-0 mb-2 bg-bg-secondary border border-border rounded-lg shadow-lg overflow-hidden z-20">
               {currentSlug && (
                 <button
@@ -156,7 +153,12 @@ export default function SettingsMenu({ currentSlug, isPublic = false }: Settings
                   className="w-full px-4 py-3 text-left hover:bg-bg-tertiary transition-colors flex items-center gap-3"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+                    />
                   </svg>
                   <div>
                     <div className="text-sm font-medium text-text-primary">Share Note</div>
@@ -169,7 +171,12 @@ export default function SettingsMenu({ currentSlug, isPublic = false }: Settings
                 className="w-full px-4 py-3 text-left hover:bg-bg-tertiary transition-colors flex items-center gap-3"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
+                  />
                 </svg>
                 <div>
                   <div className="text-sm font-medium text-text-primary">API Keys</div>
@@ -183,7 +190,12 @@ export default function SettingsMenu({ currentSlug, isPublic = false }: Settings
                     className="w-full px-4 py-3 text-left hover:bg-error/10 transition-colors flex items-center gap-3 text-error"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                      />
                     </svg>
                     <span className="text-sm font-medium">Logout</span>
                   </button>
@@ -207,7 +219,12 @@ export default function SettingsMenu({ currentSlug, isPublic = false }: Settings
                 className="text-text-muted hover:text-text-primary transition-colors"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
@@ -341,7 +358,9 @@ export default function SettingsMenu({ currentSlug, isPublic = false }: Settings
                             className="flex items-center justify-between p-3 bg-bg-tertiary border border-border rounded-lg"
                           >
                             <div className="flex-1 min-w-0">
-                              <div className="text-sm font-medium text-text-primary">{key.name}</div>
+                              <div className="text-sm font-medium text-text-primary">
+                                {key.name}
+                              </div>
                               <div className="text-xs text-text-muted font-mono">
                                 {key.id}... • Created {new Date(key.createdAt).toLocaleDateString()}
                               </div>

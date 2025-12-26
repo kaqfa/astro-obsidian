@@ -1,3 +1,13 @@
+import {
+
+  usernameSchema,
+  passwordSchema,
+  noteSlugSchema,
+  apiKeyNameSchema,
+  userRoleSchema,
+  createUserSchema,
+  shareNoteSchema,
+} from './validation';
 import { describe, it, expect } from 'vitest';
 import {
   usernameSchema,
@@ -6,8 +16,19 @@ import {
   apiKeyNameSchema,
   userRoleSchema,
   createUserSchema,
-  shareNoteSchema
+  shareNoteSchema,
 } from './validation';
+import { describe, it, expect } from 'vitest';
+import {
+  usernameSchema,
+  passwordSchema,
+  noteSlugSchema,
+  apiKeyNameSchema,
+  userRoleSchema,
+  createUserSchema,
+  shareNoteSchema,
+} from './validation';
+import { describe, it, expect } from 'vitest';
 
 describe('validation schemas', () => {
   describe('usernameSchema', () => {
@@ -105,43 +126,49 @@ describe('validation schemas', () => {
       const result = createUserSchema.parse({
         username: 'testuser',
         password: 'password123',
-        role: 'user'
+        role: 'user',
       });
       expect(result).toEqual({
         username: 'testuser',
         password: 'password123',
-        role: 'user'
+        role: 'user',
       });
     });
 
     it('should use default role if not provided', () => {
       const result = createUserSchema.parse({
         username: 'testuser',
-        password: 'password123'
+        password: 'password123',
       });
       expect(result.role).toBe('user');
     });
 
     it('should reject invalid username', () => {
-      expect(() => createUserSchema.parse({
-        username: 'ab',
-        password: 'password123'
-      })).toThrow();
+      expect(() =>
+        createUserSchema.parse({
+          username: 'ab',
+          password: 'password123',
+        })
+      ).toThrow();
     });
 
     it('should reject invalid password', () => {
-      expect(() => createUserSchema.parse({
-        username: 'testuser',
-        password: 'pass'
-      })).toThrow();
+      expect(() =>
+        createUserSchema.parse({
+          username: 'testuser',
+          password: 'pass',
+        })
+      ).toThrow();
     });
 
     it('should reject invalid role', () => {
-      expect(() => createUserSchema.parse({
-        username: 'testuser',
-        password: 'password123',
-        role: 'superadmin'
-      })).toThrow();
+      expect(() =>
+        createUserSchema.parse({
+          username: 'testuser',
+          password: 'password123',
+          role: 'superadmin',
+        })
+      ).toThrow();
     });
   });
 
@@ -149,7 +176,7 @@ describe('validation schemas', () => {
     it('should accept valid share data', () => {
       const result = shareNoteSchema.parse({
         slug: 'my-note',
-        expiresAt: Date.now() + 3600000
+        expiresAt: Date.now() + 3600000,
       });
       expect(result.slug).toBe('my-note');
       expect(result.expiresAt).toBeDefined();
@@ -158,29 +185,33 @@ describe('validation schemas', () => {
     it('should accept null expiresAt (no expiration)', () => {
       const result = shareNoteSchema.parse({
         slug: 'my-note',
-        expiresAt: null
+        expiresAt: null,
       });
       expect(result.expiresAt).toBeNull();
     });
 
     it('should accept omitting expiresAt', () => {
       const result = shareNoteSchema.parse({
-        slug: 'my-note'
+        slug: 'my-note',
       });
       expect(result.expiresAt).toBeUndefined();
     });
 
     it('should reject path traversal in slug', () => {
-      expect(() => shareNoteSchema.parse({
-        slug: '../escape'
-      })).toThrow();
+      expect(() =>
+        shareNoteSchema.parse({
+          slug: '../escape',
+        })
+      ).toThrow();
     });
 
     it('should reject negative expiresAt', () => {
-      expect(() => shareNoteSchema.parse({
-        slug: 'my-note',
-        expiresAt: -1
-      })).toThrow();
+      expect(() =>
+        shareNoteSchema.parse({
+          slug: 'my-note',
+          expiresAt: -1,
+        })
+      ).toThrow();
     });
   });
 });

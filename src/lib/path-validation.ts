@@ -25,11 +25,11 @@ export function validateSlug(slug: string): string {
   }
 
   // Only allow safe characters: alphanumeric, spaces, common punctuation, slashes, dots, parentheses
-  // Allowed: letters, numbers, spaces, hyphens, underscores, slashes, dots, parentheses
-  // Common punctuation: & (ampersand), , (comma), : (colon), ; (semicolon), ( and )
-  // Examples: "Timeline & Milestones", "Note: Draft", "00 Ideas Inbox/Dev - Kids Space", "Technical Challenge (Backend)"
+  // Allowed: letters, numbers, spaces, hyphens, underscores, slashes, dots, parentheses, plus
+  // Common punctuation: & (ampersand), , (comma), : (colon), ; (semicolon), + (plus), ( and )
+  // Examples: "Timeline & Milestones", "Note: Draft", "00 Ideas Inbox/Dev - Kids Space", "Technical Challenge (Backend)", "Feature + Update"
   // Note: hyphen placed at end to avoid being interpreted as range
-  if (!/^[a-zA-Z0-9_\/.\s&,:;()-]+$/.test(cleanSlug)) {
+  if (!/^[a-zA-Z0-9_/.\s&,:;()+-]+$/.test(cleanSlug)) {
     throw new Error('Invalid characters in path');
   }
 

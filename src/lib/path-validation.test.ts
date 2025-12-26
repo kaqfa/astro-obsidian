@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
 import { validateSlug } from './path-validation';
+import { describe, it, expect } from 'vitest';
 
 describe('validateSlug', () => {
   describe('path traversal protection', () => {
@@ -39,7 +39,9 @@ describe('validateSlug', () => {
 
     it('should allow slashes for paths', () => {
       expect(validateSlug('folder/subfolder')).toBe('folder/subfolder');
-      expect(validateSlug('00 Ideas Inbox/Dev - Kids Space')).toBe('00 Ideas Inbox/Dev - Kids Space');
+      expect(validateSlug('00 Ideas Inbox/Dev - Kids Space')).toBe(
+        '00 Ideas Inbox/Dev - Kids Space'
+      );
     });
 
     it('should allow dots in filename', () => {
@@ -54,6 +56,11 @@ describe('validateSlug', () => {
     it('should allow parentheses', () => {
       expect(validateSlug('Technical Challenge (Backend)')).toBe('Technical Challenge (Backend)');
       expect(validateSlug('Review (v2)')).toBe('Review (v2)');
+    });
+
+    it('should allow plus sign', () => {
+      expect(validateSlug('Feature + Update')).toBe('Feature + Update');
+      expect(validateSlug('Review + Proposed Solution')).toBe('Review + Proposed Solution');
     });
   });
 

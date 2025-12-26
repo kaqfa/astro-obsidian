@@ -1,7 +1,7 @@
+import bcrypt from 'bcrypt';
+import { eq, and } from 'drizzle-orm';
 import { db } from './db/index';
 import { apiKeysTable, userTable } from './db/schema';
-import { eq, and } from 'drizzle-orm';
-import bcrypt from 'bcrypt';
 
 export type UserRole = 'admin' | 'user';
 
@@ -28,7 +28,7 @@ export async function generateApiKey(userId: string, name: string): Promise<stri
     userId,
     name,
     createdAt: Date.now(),
-    isActive: 1
+    isActive: 1,
   });
 
   return rawKey;
@@ -37,16 +37,15 @@ export async function generateApiKey(userId: string, name: string): Promise<stri
 /**
  * Validate an API key and return user info if valid
  */
-export async function validateApiKey(apiKey: string): Promise<{ userId: string; role: UserRole } | null> {
+export async function validateApiKey(
+  apiKey: string
+): Promise<{ userId: string; role: UserRole } | null> {
   if (!apiKey.startsWith('obsk_')) {
     return null;
   }
 
   // Get all active API keys and check with bcrypt
-  const keys = await db
-    .select()
-    .from(apiKeysTable)
-    .where(eq(apiKeysTable.isActive, 1));
+  const keys = await db.select().from(apiKeysTable).where(eq(apiKeysTable.isActive, 1));
 
   for (const key of keys) {
     if (await bcrypt.compare(apiKey, key.id)) {
@@ -56,7 +55,8 @@ export async function validateApiKey(apiKey: string): Promise<{ userId: string; 
       }
 
       // Update last used
-      await db.update(apiKeysTable)
+      await db
+        .update(apiKeysTable)
         .set({ lastUsedAt: Date.now() })
         .where(eq(apiKeysTable.id, key.id));
 
@@ -69,7 +69,7 @@ export async function validateApiKey(apiKey: string): Promise<{ userId: string; 
 
       return {
         userId: key.userId,
-        role: (user?.role as UserRole) || 'user'
+        role: (user?.role as UserRole) || 'user',
       };
     }
   }
@@ -81,19 +81,16 @@ export async function validateApiKey(apiKey: string): Promise<{ userId: string; 
  * Get all API keys for a user
  */
 export async function getUserApiKeys(userId: string): Promise<ApiKeyInfo[]> {
-  const keys = await db
-    .select()
-    .from(apiKeysTable)
-    .where(eq(apiKeysTable.userId, userId));
+  const keys = await db.select().from(apiKeysTable).where(eq(apiKeysTable.userId, userId));
 
-  return keys.map(k => ({
+  return keys.map((k) => ({
     id: k.id,
     userId: k.userId,
     name: k.name,
     createdAt: k.createdAt,
     lastUsedAt: k.lastUsedAt,
     expiresAt: k.expiresAt,
-    isActive: k.isActive
+    isActive: k.isActive,
   }));
 }
 
@@ -104,10 +101,7 @@ export async function revokeApiKey(keyId: string, userId: string): Promise<boole
   const result = await db
     .update(apiKeysTable)
     .set({ isActive: 0 })
-    .where(and(
-      eq(apiKeysTable.id, keyId),
-      eq(apiKeysTable.userId, userId)
-    ));
+    .where(and(eq(apiKeysTable.id, keyId), eq(apiKeysTable.userId, userId)));
 
   return result.rowsAffected > 0;
 }
@@ -134,7 +128,7 @@ export async function getAllUsers() {
       id: userTable.id,
       username: userTable.username,
       role: userTable.role,
-      createdAt: userTable.createdAt
+      createdAt: userTable.createdAt,
     })
     .from(userTable);
 
@@ -144,7 +138,11 @@ export async function getAllUsers() {
 /**
  * Create a new user (admin only)
  */
-export async function createUser(username: string, passwordHash: string, role: UserRole = 'user'): Promise<string> {
+export async function createUser(
+  username: string,
+  passwordHash: string,
+  role: UserRole = 'user'
+): Promise<string> {
   const userId = crypto.randomUUID();
 
   await db.insert(userTable).values({
@@ -153,7 +151,7 @@ export async function createUser(username: string, passwordHash: string, role: U
     passwordHash,
     role,
     createdAt: Date.now(),
-    updatedAt: Date.now()
+    updatedAt: Date.now(),
   });
 
   return userId;

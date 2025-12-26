@@ -18,25 +18,28 @@ const db = drizzle(client);
 async function createUser() {
   try {
     console.log('Creating admin user...\n');
-    
+
     // Simple hardcoded user for testing
     const username = 'admin';
     const password = 'admin123';
-    
+
     const userId = generateId(15);
     const hashedPassword = await bcrypt.hash(password, 10);
-    
+
     // Check if user already exists
     const existingUser = await db.select().from(userTable).where(eq(userTable.username, username));
-    
+
     if (existingUser.length > 0) {
       console.log('User already exists, updating password...');
-      await db.update(userTable).set({ passwordHash: hashedPassword }).where(eq(userTable.username, username));
+      await db
+        .update(userTable)
+        .set({ passwordHash: hashedPassword })
+        .where(eq(userTable.username, username));
     } else {
       await db.insert(userTable).values({
         id: userId,
         username,
-        passwordHash: hashedPassword
+        passwordHash: hashedPassword,
       });
     }
 
@@ -47,12 +50,12 @@ async function createUser() {
   } catch (err) {
     console.error('\n❌ Failed to create user!');
     console.error('Error details:', err.message);
-    
+
     if (err.stack) {
       console.error('\nStack trace:');
       console.error(err.stack);
     }
-    
+
     process.exit(1);
   }
 }

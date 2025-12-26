@@ -72,41 +72,46 @@ export default function RecentNotes() {
   }
 
   return (
-    <div class="border-t border-border">
+    <div className="border-t border-border">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        class="w-full px-4 py-3 flex items-center justify-between text-text-muted hover:text-text-primary hover:bg-bg-tertiary transition-colors"
+        className="w-full px-4 py-3 flex items-center justify-between text-text-muted hover:text-text-primary hover:bg-bg-tertiary transition-colors"
       >
-        <span class="text-sm font-medium flex items-center gap-2">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        <span className="text-sm font-medium flex items-center gap-2">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
           </svg>
           Recent Notes
-          <span class="text-xs bg-accent/20 text-accent px-1.5 rounded-full">
+          <span className="text-xs bg-accent/20 text-accent px-1.5 rounded-full">
             {recentNotes.length}
           </span>
         </span>
         <svg
-          class={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
         >
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
         </svg>
       </button>
 
       {isOpen && (
-        <div class="px-2 pb-2 space-y-1 max-h-64 overflow-y-auto scrollbar-thin">
+        <div className="px-2 pb-2 space-y-1 max-h-64 overflow-y-auto scrollbar-thin">
           {recentNotes.map((note) => (
             <a
               key={note.slug}
               href={`/notes/${note.slug}`}
-              class="block px-2 py-1.5 rounded text-sm text-text-muted hover:text-text-primary hover:bg-bg-tertiary transition-colors truncate"
+              className="block px-2 py-1.5 rounded text-sm text-text-muted hover:text-text-primary hover:bg-bg-tertiary transition-colors truncate"
               title={note.title}
             >
-              <div class="truncate">{note.title}</div>
-              <div class="text-xs text-text-muted/60 mt-0.5">
+              <div className="truncate">{note.title}</div>
+              <div className="text-xs text-text-muted/60 mt-0.5">
                 {formatTimeAgo(note.viewedAt)}
               </div>
             </a>

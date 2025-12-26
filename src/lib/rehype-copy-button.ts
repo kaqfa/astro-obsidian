@@ -1,5 +1,5 @@
-import { visit } from 'unist-util-visit';
 import { h } from 'hastscript';
+import { visit } from 'unist-util-visit';
 
 /**
  * Rehype plugin to add copy button to code blocks
@@ -24,20 +24,22 @@ export function rehypeCopyButton() {
         };
 
         const codeText = getTextContent(codeNode);
-        
+
         // Create wrapper div with relative positioning
         const wrapper = h('div', { class: 'code-block-wrapper' }, [
           // Copy button (will be hydrated by React)
-          h('button', {
-            class: 'copy-code-btn',
-            'data-code': codeText,
-            'aria-label': 'Copy code to clipboard',
-            title: 'Copy code'
-          }, [
-            h('span', { class: 'copy-icon' }, '📋')
-          ]),
+          h(
+            'button',
+            {
+              class: 'copy-code-btn',
+              'data-code': codeText,
+              'aria-label': 'Copy code to clipboard',
+              title: 'Copy code',
+            },
+            [h('span', { class: 'copy-icon' }, '📋')]
+          ),
           // Original pre element
-          node
+          node,
         ]);
 
         // Replace pre with wrapper

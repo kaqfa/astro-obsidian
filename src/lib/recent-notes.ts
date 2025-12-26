@@ -39,14 +39,14 @@ export function addRecentNote(note: Note): void {
     const now = Date.now();
 
     // Remove existing entry with same slug (if any)
-    const filtered = recent.filter(r => r.slug !== note.slug);
+    const filtered = recent.filter((r) => r.slug !== note.slug);
 
     // Add new entry at the beginning
     const entry: RecentNote = {
       slug: note.slug,
       title: note.title,
       path: note.path,
-      viewedAt: now
+      viewedAt: now,
     };
 
     const updated = [entry, ...filtered].slice(0, MAX_RECENT_NOTES);

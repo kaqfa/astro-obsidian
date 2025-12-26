@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
 import FlexSearch from 'flexsearch';
+import { useState, useEffect } from 'react';
 
 interface Note {
   slug: string;
@@ -20,10 +20,10 @@ export default function SearchBar({ notes }: Props) {
   useEffect(() => {
     // Handle CommonJS import interop
     const Index = (FlexSearch as any).Index || FlexSearch;
-    
+
     const searchIndex = new Index({
       tokenize: 'forward',
-      cache: true
+      cache: true,
     });
 
     notes.forEach((note, i) => {
@@ -42,9 +42,7 @@ export default function SearchBar({ notes }: Props) {
     }
 
     const searchResults = index.search(value);
-    const matched = searchResults
-      .map((idx: any) => notes[idx as number])
-      .slice(0, 5);
+    const matched = searchResults.map((idx: any) => notes[idx as number]).slice(0, 5);
 
     setResults(matched);
   };
@@ -67,9 +65,7 @@ export default function SearchBar({ notes }: Props) {
               href={`/notes/${note.slug}`}
               className="block px-3 py-3 border-b border-border last:border-b-0 hover:bg-bg-tertiary transition-colors"
             >
-              <div className="font-medium text-text-primary text-sm truncate">
-                {note.title}
-              </div>
+              <div className="font-medium text-text-primary text-sm truncate">{note.title}</div>
               <div className="text-xs text-text-muted truncate mt-1">
                 {note.content.substring(0, 80)}...
               </div>

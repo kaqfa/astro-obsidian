@@ -1,6 +1,6 @@
-import type { APIRoute } from "astro";
-import { lucia } from "../../lib/auth";
-import { validateSession } from "../../lib/middleware";
+import type { APIRoute } from 'astro';
+import { lucia } from '../../lib/auth';
+import { validateSession } from '../../lib/middleware';
 
 export const POST: APIRoute = async ({ cookies }) => {
   const { session } = await validateSession(cookies);
@@ -13,6 +13,6 @@ export const POST: APIRoute = async ({ cookies }) => {
 
   return new Response(null, {
     status: 302,
-    headers: { Location: "/login" }
+    headers: { Location: '/login' },
   });
 };

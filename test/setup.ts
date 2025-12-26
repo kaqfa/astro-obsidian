@@ -1,3 +1,12 @@
+// Import testing library after mocks
+import '@testing-library/jest-dom';
+import { cleanup } from '@testing-library/react';
+import { vi, afterEach } from 'vitest';
+import '@testing-library/jest-dom';
+import { cleanup } from '@testing-library/react';
+import { vi, afterEach } from 'vitest';
+import '@testing-library/jest-dom';
+import { cleanup } from '@testing-library/react';
 import { vi, afterEach } from 'vitest';
 
 // Mock environment before importing anything else
@@ -20,10 +29,6 @@ globalThis.Astro = {
   },
   redirect: vi.fn(),
 } as any;
-
-// Import testing library after mocks
-import '@testing-library/jest-dom';
-import { cleanup } from '@testing-library/react';
 
 // Cleanup after each test
 afterEach(() => {

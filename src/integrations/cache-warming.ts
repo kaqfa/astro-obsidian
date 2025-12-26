@@ -1,7 +1,6 @@
-import type { AstroIntegration } from 'astro';
 import type { FileTreeItem } from '../lib/vault';
+import type { AstroIntegration } from 'astro';
 
-// Global cache storage (shared across all requests)
 let globalFileTree: FileTreeItem[] | null = null;
 let globalAllNotes: Awaited<ReturnType<typeof import('../lib/vault').getAllNotes>> | null = null;
 
@@ -51,7 +50,7 @@ export function cacheWarming(): AstroIntegration {
           await refreshGlobalCache();
 
           console.log('[Integration] Cache warming complete');
-        } catch (error) {
+        } catch {
           // In development mode, modules might not be available yet
           // Cache will be warmed on first request instead
           console.log('[Integration] Cache warming skipped (will warm on first request)');
@@ -70,7 +69,7 @@ export function cacheWarming(): AstroIntegration {
         if (globalAllNotes) {
           locals.allNotes = globalAllNotes;
         }
-      }
-    }
+      },
+    },
   };
 }

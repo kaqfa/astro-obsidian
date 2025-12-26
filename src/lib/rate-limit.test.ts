@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { checkRateLimit, cleanupRateLimits } from './rate-limit';
+import { describe, it, expect, beforeEach } from 'vitest';
 
 describe('rate limiting', () => {
   beforeEach(() => {
@@ -46,7 +46,7 @@ describe('rate limiting', () => {
       expect(result.success).toBe(false);
 
       // Wait for window to expire
-      await new Promise(resolve => setTimeout(resolve, 150));
+      await new Promise((resolve) => setTimeout(resolve, 150));
 
       // Should be allowed again
       result = checkRateLimit(identifier, maxAttempts, windowMs);
@@ -80,7 +80,7 @@ describe('rate limiting', () => {
       checkRateLimit(identifier, 1, windowMs);
 
       // Wait for expiration
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       // Cleanup should remove expired entry
       expect(() => cleanupRateLimits()).not.toThrow();

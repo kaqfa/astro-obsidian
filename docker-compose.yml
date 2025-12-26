@@ -4,7 +4,7 @@ services:
     container_name: obsidian-web
     restart: unless-stopped
     ports:
-      - "${PORT:-4321}:4321"
+      - '${PORT:-4321}:4321'
     environment:
       - NODE_ENV=production
       - TURSO_DATABASE_URL=${TURSO_DATABASE_URL:-file:/app/data/local.db}

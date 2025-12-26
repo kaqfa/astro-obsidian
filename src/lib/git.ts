@@ -1,6 +1,6 @@
-import simpleGit from 'simple-git';
 import { existsSync } from 'fs';
 import { mkdir } from 'fs/promises';
+import simpleGit from 'simple-git';
 
 const VAULT_PATH = './vault';
 
@@ -22,7 +22,7 @@ async function getGitWithCredentials() {
       // Redact any URLs that might appear in progress output
       const safeProgress = progress?.replace(/https:\/\/[^@]+@/, 'https://***@/');
       console.log(`[GIT] ${method} ${stage} ${safeProgress}`);
-    }
+    },
   });
 
   // Set environment variables for git credential handling
@@ -32,7 +32,7 @@ async function getGitWithCredentials() {
     GIT_ASKPASS: '/bin/echo',
     GIT_TERMINAL_PROMPT: '0',
     GIT_USERNAME: username,
-    GIT_PASSWORD: token
+    GIT_PASSWORD: token,
   });
 
   return git;
@@ -67,7 +67,7 @@ export async function syncVault() {
       // Try to get from existing remote
       const git = simpleGit(VAULT_PATH);
       const remotes = await git.getRemotes(true);
-      const origin = remotes.find(r => r.name === 'origin');
+      const origin = remotes.find((r) => r.name === 'origin');
       repoUrl = origin?.refs?.fetch || origin?.refs?.push;
     }
 
@@ -87,13 +87,13 @@ export async function syncVault() {
 
     return {
       success: true,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   } catch (error) {
     console.error('[GIT] Sync failed:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     };
   }
 }

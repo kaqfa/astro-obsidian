@@ -1,22 +1,17 @@
-import { unified } from 'unified';
-import remarkParse from 'remark-parse';
-import remarkGfm from 'remark-gfm';
-import remarkRehype from 'remark-rehype';
-import rehypeRaw from 'rehype-raw';
-import rehypeSlug from 'rehype-slug';
+import { rehypeCopyButton } from './rehype-copy-button';
+import { getFilePathCache } from './vault';
+import GithubSlugger from 'github-slugger';
+import { parse } from 'path';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import rehypeHighlight from 'rehype-highlight';
-import GithubSlugger from 'github-slugger';
-
+import rehypeRaw from 'rehype-raw';
+import rehypeSlug from 'rehype-slug';
 import rehypeStringify from 'rehype-stringify';
+import remarkGfm from 'remark-gfm';
+import remarkParse from 'remark-parse';
+import remarkRehype from 'remark-rehype';
+import { unified } from 'unified';
 import { visit } from 'unist-util-visit';
-import { getFilePathCache } from './vault';
-import { parse } from 'path';
-import { rehypeCopyButton } from './rehype-copy-button';
-
-// ============================================
-// MARKDOWN PROCESSING CACHE (LRU)
-// ============================================
 
 interface CacheEntry {
   html: string;
@@ -53,11 +48,11 @@ function evictOldestEntry(): void {
 function remarkWikilinks() {
   return (tree: any) => {
     const cache = getFilePathCache();
-    
+
     visit(tree, 'text', (node, index, parent) => {
       const wikiLinkRegex = /\[\[([^\]]+)\]\]/g;
       const matches = [...node.value.matchAll(wikiLinkRegex)];
-      
+
       if (matches.length === 0) return;
 
       const newNodes: any[] = [];
@@ -70,39 +65,39 @@ function remarkWikilinks() {
         if (matchIndex > lastIndex) {
           newNodes.push({
             type: 'text',
-            value: node.value.slice(lastIndex, matchIndex)
+            value: node.value.slice(lastIndex, matchIndex),
           });
         }
 
         const [link, alias] = linkText.split('|');
         const displayText = alias || link;
-        
+
         // Resolve path using cache
         let href: string;
         let cssClass = '';
-        
+
         if (cache) {
           // Try multiple resolution strategies:
           let resolvedPath: string | undefined;
-          
+
           const linkTrimmed = link.trim();
           const linkLower = linkTrimmed.toLowerCase();
-          
+
           // Strategy 1: Try exact match (for paths like "Weekly/2025/W51-Plan")
           resolvedPath = cache.get(linkLower);
-          
+
           // Strategy 2: Try basename only (for simple links like "W51-Plan")
           if (!resolvedPath) {
             const basename = parse(linkTrimmed).name;
             resolvedPath = cache.get(basename.toLowerCase());
           }
-          
+
           // Strategy 3: Try with .md extension removed
           if (!resolvedPath && linkTrimmed.endsWith('.md')) {
             const withoutExt = linkTrimmed.slice(0, -3);
             resolvedPath = cache.get(withoutExt.toLowerCase());
           }
-          
+
           if (resolvedPath) {
             // Found! Use resolved path
             href = `/notes/${resolvedPath}`;
@@ -122,9 +117,9 @@ function remarkWikilinks() {
           children: [{ type: 'text', value: displayText.trim() }],
           data: {
             hProperties: {
-              class: cssClass || undefined
-            }
-          }
+              class: cssClass || undefined,
+            },
+          },
         });
 
         lastIndex = matchIndex + fullMatch.length;
@@ -133,7 +128,7 @@ function remarkWikilinks() {
       if (lastIndex < node.value.length) {
         newNodes.push({
           type: 'text',
-          value: node.value.slice(lastIndex)
+          value: node.value.slice(lastIndex),
         });
       }
 
@@ -164,11 +159,10 @@ function remarkExcalidraw() {
   };
 }
 
-
 export async function processMarkdown(content: string, slug?: string): Promise<string> {
   // Generate cache key (use slug if provided, otherwise hash content)
   const cacheKey = slug || content.substring(0, 100); // Simple key for now
-  
+
   // Check cache
   const cached = markdownCache.get(cacheKey);
   if (cached) {
@@ -180,7 +174,7 @@ export async function processMarkdown(content: string, slug?: string): Promise<s
       markdownCache.delete(cacheKey);
     }
   }
-  
+
   // Process markdown (cache miss or expired)
   const result = await unified()
     .use(remarkParse)
@@ -198,15 +192,15 @@ export async function processMarkdown(content: string, slug?: string): Promise<s
     .process(content);
 
   const html = String(result);
-  
+
   // Store in cache with LRU eviction
   if (markdownCache.size >= MAX_CACHE_SIZE) {
     evictOldestEntry();
   }
-  
+
   markdownCache.set(cacheKey, {
     html,
-    timestamp: Date.now()
+    timestamp: Date.now(),
   });
 
   return html;

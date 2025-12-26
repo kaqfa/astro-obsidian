@@ -1,13 +1,12 @@
 import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
 
-// User roles: 'admin' | 'user'
 export const userTable = sqliteTable('user', {
   id: text('id').primaryKey(),
   username: text('username').notNull().unique(),
   passwordHash: text('password_hash').notNull(),
   role: text('role').notNull().default('user'), // 'admin' | 'user'
   createdAt: integer('created_at').notNull().default(0),
-  updatedAt: integer('updated_at').notNull().default(0)
+  updatedAt: integer('updated_at').notNull().default(0),
 });
 
 export const sessionTable = sqliteTable('session', {
@@ -15,7 +14,7 @@ export const sessionTable = sqliteTable('session', {
   userId: text('user_id')
     .notNull()
     .references(() => userTable.id),
-  expiresAt: integer('expires_at').notNull()
+  expiresAt: integer('expires_at').notNull(),
 });
 
 // Public notes sharing - store slugs of notes that are publicly accessible
@@ -38,6 +37,5 @@ export const apiKeysTable = sqliteTable('api_keys', {
   createdAt: integer('created_at').notNull().default(0),
   lastUsedAt: integer('last_used_at'), // Last usage timestamp
   expiresAt: integer('expires_at'), // Optional expiry
-  isActive: integer('is_active').notNull().default(1) // 0 = inactive, 1 = active
+  isActive: integer('is_active').notNull().default(1), // 0 = inactive, 1 = active
 });
-

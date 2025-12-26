@@ -1,5 +1,5 @@
-import { lucia } from "./auth";
-import type { AstroCookies } from "astro";
+import type { AstroCookies } from 'astro';
+import { lucia } from './auth';
 
 export async function validateSession(cookies: AstroCookies) {
   const sessionCookie = cookies.get(lucia.sessionCookieName);
@@ -7,7 +7,7 @@ export async function validateSession(cookies: AstroCookies) {
   console.log(`[MIDDLEWARE] Cookie check:`, {
     cookieName: lucia.sessionCookieName,
     hasCookie: !!sessionCookie,
-    cookieValue: sessionCookie?.value?.substring(0, 10) + '...' || 'none'
+    cookieValue: sessionCookie?.value?.substring(0, 10) + '...' || 'none',
   });
 
   const sessionId = sessionCookie?.value ?? null;
@@ -23,7 +23,7 @@ export async function validateSession(cookies: AstroCookies) {
   console.log(`[MIDDLEWARE] Validation result:`, {
     sessionValid: !!result.session,
     userFound: !!result.user,
-    userId: result.user?.id || 'none'
+    userId: result.user?.id || 'none',
   });
 
   if (result.session?.fresh) {

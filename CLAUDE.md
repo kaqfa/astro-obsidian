@@ -13,6 +13,7 @@ Obsidian Web Viewer is a self-hosted, single-user web application for viewing Ob
 ## Common Commands
 
 ### Development
+
 ```bash
 npm run dev              # Start dev server (localhost:4321)
 npm run build            # Build for production
@@ -22,12 +23,14 @@ npm run typecheck        # Run Astro type checker
 ```
 
 ### Database Setup
+
 ```bash
 npx tsx migrate.ts       # Create database tables
 npx tsx setup.ts         # Create admin user (interactive)
 ```
 
 ### Deployment (Choose one)
+
 ```bash
 # Passenger (cPanel)
 # Upload dist/ + src/ + app.mjs, run via cPanel Node.js App
@@ -88,14 +91,14 @@ HTML Response + View Transitions metadata
 
 ### Core Libraries by Function
 
-| Purpose | Library | Location |
-|---------|---------|----------|
-| Authentication | Lucia v3 | `src/lib/auth.ts` |
-| Database ORM | Drizzle | `src/lib/db/` |
-| Vault Operations | fs/promises, simple-git | `src/lib/vault.ts` |
-| Markdown Processing | unified + remark/rehype | `src/lib/markdown.ts` |
-| Git Sync | simple-git | `src/lib/git.ts` |
-| Client Search | FlexSearch | `src/components/SearchBar.tsx` |
+| Purpose             | Library                 | Location                       |
+| ------------------- | ----------------------- | ------------------------------ |
+| Authentication      | Lucia v3                | `src/lib/auth.ts`              |
+| Database ORM        | Drizzle                 | `src/lib/db/`                  |
+| Vault Operations    | fs/promises, simple-git | `src/lib/vault.ts`             |
+| Markdown Processing | unified + remark/rehype | `src/lib/markdown.ts`          |
+| Git Sync            | simple-git              | `src/lib/git.ts`               |
+| Client Search       | FlexSearch              | `src/components/SearchBar.tsx` |
 
 ---
 
@@ -106,6 +109,7 @@ HTML Response + View Transitions metadata
 Custom remark plugin in `src/lib/markdown.ts` transforms `[[note]]` or `[[note|alias]]` into proper links.
 
 **Resolution strategy (in order):**
+
 1. Exact match: `cache.get(linkLower)`
 2. Basename only: `cache.get(basenameLower)` (e.g., "W51-Plan" → "Weekly/2025/W51-Plan")
 3. With .md removed: `cache.get(withoutExtLower)`
@@ -115,7 +119,7 @@ Uses `buildFilePathCache()` from `src/lib/vault.ts` which builds case-insensitiv
 
 ### Markdown Processing Pipeline
 
-```
+````
 markdown content
     ↓
 remarkParse (Markdown → AST)
@@ -141,7 +145,7 @@ rehypeHighlight (syntax highlighting)
 rehypeCopyButton (inject copy buttons)
     ↓
 rehypeStringify (AST → HTML string)
-```
+````
 
 ### SPA Navigation with View Transitions
 
@@ -152,10 +156,12 @@ rehypeStringify (AST → HTML string)
 ### Database Schema
 
 **Tables** (`src/lib/db/schema.ts`):
+
 - `user` - id, username, passwordHash
 - `session` - id, userId, expiresAt
 
 **Connection** (`src/lib/db/index.ts`):
+
 - Uses `@libsql/client` (Turso or local SQLite)
 - Drizzle ORM for type-safe queries
 - Lucia adapter: `@lucia-auth/adapter-drizzle`
@@ -186,6 +192,7 @@ NODE_ENV=production
 **Tailwind CSS v4** with custom theme in `src/styles/global.css`.
 
 **Color Palette (Blue Topaz-inspired):**
+
 - Dark mode (default): `#0f172a` (bg), `#3b82f6` (accent)
 - Light mode: `#f8fafc` (bg), `#3b82f6` (accent)
 
@@ -243,6 +250,7 @@ Always check `Astro.locals` first before fetching - data may be pre-cached.
 ### After Git Sync
 
 All caches are invalidated:
+
 1. `invalidateCaches()` - clears vault-level caches
 2. `invalidateMarkdownCache()` - clears HTML cache
 3. `warmCaches()` - rescans vault
@@ -253,12 +261,15 @@ All caches are invalidated:
 ## Known Issues & Workarounds
 
 ### Wikilink Resolution in Complex Vaults
+
 Some nested structures may not resolve correctly. Check `buildFilePathCache()` resolution strategies if links break.
 
 ### Mermaid Re-render on Navigation
+
 Diagrams use `astro:page-load` event listener - must re-run `mermaid.run()` after SPA navigation.
 
 ### Excalidraw External CDN
+
 Embeds load from `excalidraw.com` - requires internet access.
 
 ---
@@ -278,10 +289,10 @@ No automated tests currently. Manual testing checklist:
 
 ## Performance Targets
 
-| Metric | Target |
-|--------|--------|
-| Initial page load | <2s |
-| SPA navigation | <200ms (perceived) |
-| Search response | <200ms |
-| Markdown cache hit | <10ms |
-| Sync operation (typical vault) | <10s |
+| Metric                         | Target             |
+| ------------------------------ | ------------------ |
+| Initial page load              | <2s                |
+| SPA navigation                 | <200ms (perceived) |
+| Search response                | <200ms             |
+| Markdown cache hit             | <10ms              |
+| Sync operation (typical vault) | <10s               |

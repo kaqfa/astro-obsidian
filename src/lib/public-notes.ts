@@ -1,5 +1,5 @@
 import { db } from './db/index';
-import { publicNotesTable, userTable } from './db/schema';
+import { publicNotesTable } from './db/schema';
 import { eq } from 'drizzle-orm';
 
 export interface PublicNote {
@@ -36,28 +36,34 @@ export async function isNotePublic(slug: string): Promise<boolean> {
 /**
  * Add a note to public sharing
  */
-export async function makeNotePublic(slug: string, sharedBy: string, expiresAt?: number): Promise<void> {
-  await db.insert(publicNotesTable).values({
-    slug,
-    sharedBy,
-    sharedAt: Date.now(),
-    expiresAt: expiresAt || null
-  }).onConflictDoUpdate({
-    target: publicNotesTable.slug,
-    set: {
+export async function makeNotePublic(
+  slug: string,
+  sharedBy: string,
+  expiresAt?: number
+): Promise<void> {
+  await db
+    .insert(publicNotesTable)
+    .values({
+      slug,
       sharedBy,
       sharedAt: Date.now(),
-      expiresAt: expiresAt || null
-    }
-  });
+      expiresAt: expiresAt || null,
+    })
+    .onConflictDoUpdate({
+      target: publicNotesTable.slug,
+      set: {
+        sharedBy,
+        sharedAt: Date.now(),
+        expiresAt: expiresAt || null,
+      },
+    });
 }
 
 /**
  * Remove a note from public sharing
  */
 export async function makeNotePrivate(slug: string): Promise<void> {
-  await db.delete(publicNotesTable)
-    .where(eq(publicNotesTable.slug, slug));
+  await db.delete(publicNotesTable).where(eq(publicNotesTable.slug, slug));
 }
 
 /**
@@ -76,9 +82,7 @@ export async function getPublicNotesByUser(sharedBy: string): Promise<PublicNote
  * Get all public notes (admin only)
  */
 export async function getAllPublicNotes(): Promise<PublicNote[]> {
-  const results = await db
-    .select()
-    .from(publicNotesTable);
+  const results = await db.select().from(publicNotesTable);
 
   return results || [];
 }
