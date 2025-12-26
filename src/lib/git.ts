@@ -5,37 +5,36 @@ import simpleGit from 'simple-git';
 const VAULT_PATH = './vault';
 
 /**
- * Get git instance with secure credential handling
- * Uses environment variables instead of embedding credentials in URLs
+ * Get authenticated git URL from environment variables
+ * Embeds credentials securely for HTTP authentication
  */
-async function getGitWithCredentials() {
+function getAuthenticatedUrl(repoUrl: string): string {
   const username = process.env.GIT_USERNAME;
   const token = process.env.GIT_TOKEN;
 
   if (!username || !token) {
-    return simpleGit(VAULT_PATH);
+    return repoUrl;
   }
 
-  // Use environment variable method to avoid credential leakage in logs
-  const git = simpleGit(VAULT_PATH, {
+  // Remove existing credentials if any, then add fresh ones
+  const cleanUrl = repoUrl.replace(/^https:\/\/[^@]+@/, 'https://');
+  return cleanUrl.replace('https://', `https://${username}:${token}@`);
+}
+
+/**
+ * Get git instance with progress logging
+ */
+async function getGitInstance() {
+  return simpleGit(VAULT_PATH, {
     progress: ({ method, stage, progress }) => {
-      // Redact any URLs that might appear in progress output
-      const safeProgress = progress?.replace(/https:\/\/[^@]+@/, 'https://***@/');
-      console.log(`[GIT] ${method} ${stage} ${safeProgress}`);
+      // Redact credentials in progress output
+      const progressStr = String(progress ?? '');
+      const safeProgress = progressStr.replace(/https:\/\/[^:]+:[^@]+@/, 'https://***@/');
+      if (safeProgress) {
+        console.log(`[GIT] ${method} ${stage} ${safeProgress}`);
+      }
     },
   });
-
-  // Set environment variables for git credential handling
-  // This avoids embedding credentials in URLs or command history
-  git.env({
-    ...process.env,
-    GIT_ASKPASS: '/bin/echo',
-    GIT_TERMINAL_PROMPT: '0',
-    GIT_USERNAME: username,
-    GIT_PASSWORD: token,
-  });
-
-  return git;
 }
 
 export async function ensureVault() {
@@ -51,10 +50,9 @@ export async function initVault(repoUrl: string) {
   const isRepo = existsSync(`${VAULT_PATH}/.git`);
 
   if (!isRepo) {
-    const git = await getGitWithCredentials();
-    // Clean URL - remove any existing credentials
-    const cleanUrl = repoUrl.replace(/^https:\/\/[^@]+@/, 'https://');
-    await git.clone(cleanUrl, VAULT_PATH);
+    const git = await getGitInstance();
+    const authUrl = getAuthenticatedUrl(repoUrl);
+    await git.clone(authUrl, VAULT_PATH);
   }
 }
 
@@ -75,13 +73,13 @@ export async function syncVault() {
       throw new Error('No git repository URL configured');
     }
 
-    const git = await getGitWithCredentials();
+    const git = await getGitInstance();
 
-    // Clean URL - remove any existing credentials
-    const cleanUrl = repoUrl.replace(/^https:\/\/[^@]+@/, 'https://');
-    await git.remote(['set-url', 'origin', cleanUrl]);
+    // Set remote URL with embedded credentials
+    const authUrl = getAuthenticatedUrl(repoUrl);
+    await git.remote(['set-url', 'origin', authUrl]);
 
-    // Fetch and pull - credentials handled by environment variables
+    // Fetch and pull
     await git.fetch();
     await git.pull('origin', 'main');
 
