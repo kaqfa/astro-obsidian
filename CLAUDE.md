@@ -258,6 +258,51 @@ All caches are invalidated:
 
 ---
 
+## Filename & Slug Requirements
+
+### Supported Characters
+
+Note filenames and slugs (paths) support the following characters:
+
+**Alphanumeric:**
+- `a-z`, `A-Z`, `0-9`
+
+**Special Characters:**
+- `/` - Forward slash (for nested directories)
+- `.` - Dot (in filenames, not for navigation)
+- `_` - Underscore
+- `-` - Hyphen/dash
+- `'` - Apostrophe (single quote)
+- `"` - Double quote
+- `(` `)` - Parentheses
+- `&` - Ampersand
+- `,` - Comma
+- `:` - Colon
+- `;` - Semicolon
+- `+` - Plus sign
+- Whitespace (spaces, tabs)
+
+**Examples of Valid Filenames:**
+```
+Timeline & Milestones
+Note: Draft v2
+00 Ideas Inbox/Dev - Kids Space
+Technical Challenge (Backend)
+Feature + Update
+It's not super Apps
+Weekly/2025/W51-Plan
+```
+
+**Security Restrictions:**
+- No path traversal (`..` is blocked)
+- No backslashes (`\` is blocked)
+- No null bytes
+- Paths must stay within vault directory
+
+**Implementation:** See `src/lib/path-validation.ts` for validation logic.
+
+---
+
 ## Known Issues & Workarounds
 
 ### Wikilink Resolution in Complex Vaults

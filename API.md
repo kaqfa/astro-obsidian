@@ -12,6 +12,58 @@ http://your-domain.com/api/v1
 
 ---
 
+## Supported Characters in Note Paths (Slugs)
+
+Note paths (slugs) mendukung karakter-karakter berikut:
+
+### Alphanumeric
+- `a-z`, `A-Z`, `0-9`
+
+### Karakter Special yang Diizinkan
+- `/` - Forward slash (untuk nested directories)
+- `.` - Dot
+- `_` - Underscore
+- `-` - Hyphen/dash
+- `'` - Apostrophe (single quote)
+- `"` - Double quote
+- `(` `)` - Parentheses
+- `&` - Ampersand
+- `,` - Comma
+- `:` - Colon
+- `;` - Semicolon
+- `+` - Plus sign
+- Whitespace (spasi, tab)
+
+### URL Encoding
+**PENTING:** Slug dengan spasi atau karakter special **harus di-URL encode** saat mengakses via API.
+
+**Contoh:**
+```
+Original slug:    00 Ideas Inbox/My Note
+URL encoded slug: 00%20Ideas%20Inbox%2FMy%20Note
+
+Original slug:    Feature & Update
+URL encoded slug: Feature%20%26%20Update
+
+Original slug:    It's not super Apps
+URL encoded slug: It's%20not%20super%20Apps
+```
+
+**Python:**
+```python
+import urllib.parse
+slug = "00 Ideas Inbox/My Note"
+encoded = urllib.parse.quote(slug)  # "00%20Ideas%20Inbox%2FMy%20Note"
+```
+
+**JavaScript:**
+```javascript
+const slug = "00 Ideas Inbox/My Note";
+const encoded = encodeURIComponent(slug); // "00%20Ideas%20Inbox%2FMy%20Note"
+```
+
+---
+
 ## Quick Start
 
 ### 1. Generate API Key
