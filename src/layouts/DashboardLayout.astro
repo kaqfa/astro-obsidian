@@ -8,6 +8,7 @@ import Breadcrumb from "../components/Breadcrumb.astro";
 import RecentNotes from "../components/RecentNotes";
 import SettingsMenu from "../components/SettingsMenu";
 import FileTreeContextMenu from "../components/FileTreeContextMenu";
+import SidebarToggle from "../components/SidebarToggle";
 import { getFileTree, getAllNotes } from "../lib/vault";
 import { getLastSync } from "../lib/git";
 
@@ -26,11 +27,18 @@ const lastSync = await getLastSync();
 ---
 
 <MainLayout title={title}>
-  <div class="h-screen flex overflow-hidden bg-bg-primary">
+  <div class="h-screen flex overflow-hidden bg-bg-primary relative">
+    <!-- Mobile Sidebar Overlay -->
+    <div
+      data-sidebar-overlay
+      class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden opacity-0 pointer-events-none transition-opacity duration-300"
+    >
+    </div>
+
     <!-- Sidebar -->
     <aside
       data-sidebar
-      class="w-80 bg-bg-secondary border-r border-border flex flex-col shrink-0 transition-all duration-300"
+      class="w-80 bg-bg-secondary border-r border-border flex flex-col shrink-0 transition-all duration-300 fixed lg:static inset-y-0 left-0 z-50 -translate-x-full lg:translate-x-0"
       transition:persist
     >
       <!-- Header -->
@@ -109,6 +117,9 @@ const lastSync = await getLastSync();
         class="h-16 border-b border-border bg-bg-primary/80 backdrop-blur flex items-center justify-between px-6 shrink-0 z-10 sticky top-0"
       >
         <div class="flex items-center gap-4 min-w-0">
+          <!-- Mobile Sidebar Toggle -->
+          <SidebarToggle client:load />
+
           <!-- Breadcrumb Navigation -->
           {
             currentPath ? (
@@ -304,3 +315,35 @@ const lastSync = await getLastSync();
   <!-- Context Menu for File Tree -->
   <FileTreeContextMenu client:load />
 </MainLayout>
+
+<style is:global>
+  /* Mobile Sidebar Behavior */
+  [data-sidebar].sidebar-open {
+    transform: translateX(0);
+  }
+
+  [data-sidebar-overlay].active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Smooth transitions for sidebar */
+  [data-sidebar] {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  [data-sidebar-overlay] {
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* On desktop (lg and up), ensure sidebar is always visible */
+  @media (min-width: 1024px) {
+    [data-sidebar] {
+      transform: translateX(0) !important;
+    }
+
+    [data-sidebar-overlay] {
+      display: none !important;
+    }
+  }
+</style>
