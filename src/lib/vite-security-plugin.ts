@@ -1,4 +1,5 @@
 import type { Plugin } from 'vite';
+import { logger } from './logger';
 
 const SENSITIVE_PATHS = [
   '/.git',
@@ -58,7 +59,7 @@ export function securityPlugin(): Plugin {
 
           if (isSensitive) {
             // Log the blocked attempt (without exposing full path in production)
-            console.log(`[SECURITY] Blocked access to sensitive path: ${pathname}`);
+            logger.warn(`[SECURITY] Blocked access to sensitive path: ${pathname}`);
 
             // Return generic 404 without path information
             res.statusCode = 404;

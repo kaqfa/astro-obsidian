@@ -1,5 +1,6 @@
 import { rehypeCopyButton } from './rehype-copy-button';
 import { getFilePathCache } from './vault';
+import { logger } from './logger';
 import GithubSlugger from 'github-slugger';
 import { parse } from 'path';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
@@ -28,10 +29,10 @@ const CACHE_TTL = 30 * 60 * 1000; // 30 minutes (increased from 5 minutes)
 export function invalidateMarkdownCache(slug?: string): void {
   if (slug) {
     markdownCache.delete(slug);
-    console.log(`[Cache] Invalidated markdown cache for: ${slug}`);
+    logger.debug(`[Cache] Invalidated markdown cache for: ${slug}`);
   } else {
     markdownCache.clear();
-    console.log('[Cache] Cleared all markdown cache');
+    logger.debug('[Cache] Cleared all markdown cache');
   }
 }
 

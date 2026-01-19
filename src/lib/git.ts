@@ -1,6 +1,7 @@
 import { existsSync } from 'fs';
 import { mkdir } from 'fs/promises';
 import simpleGit from 'simple-git';
+import { logger } from './logger';
 
 const VAULT_PATH = './vault';
 
@@ -31,7 +32,7 @@ async function getGitInstance() {
       const progressStr = String(progress ?? '');
       const safeProgress = progressStr.replace(/https:\/\/[^:]+:[^@]+@/, 'https://***@/');
       if (safeProgress) {
-        console.log(`[GIT] ${method} ${stage} ${safeProgress}`);
+        logger.info(`[GIT] ${method} ${stage} ${safeProgress}`);
       }
     },
   });
@@ -88,7 +89,7 @@ export async function syncVault() {
       timestamp: new Date().toISOString(),
     };
   } catch (error) {
-    console.error('[GIT] Sync failed:', error);
+    logger.error('[GIT] Sync failed:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',

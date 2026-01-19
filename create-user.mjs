@@ -5,20 +5,6 @@ import 'dotenv/config';
 import { eq } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/libsql';
 import { generateId } from 'lucia';
-import { userTable } from './src/lib/db/schema.js';
-import { createClient } from '@libsql/client';
-import bcrypt from 'bcrypt';
-import 'dotenv/config';
-import { eq } from 'drizzle-orm';
-import { drizzle } from 'drizzle-orm/libsql';
-import { generateId } from 'lucia';
-import { userTable } from './src/lib/db/schema.js';
-import { createClient } from '@libsql/client';
-import bcrypt from 'bcrypt';
-import 'dotenv/config';
-import { eq } from 'drizzle-orm';
-import { drizzle } from 'drizzle-orm/libsql';
-import { generateId } from 'lucia';
 
 // Create database connection
 const url = process.env.TURSO_DATABASE_URL || 'file:local.db';
