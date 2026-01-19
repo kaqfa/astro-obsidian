@@ -114,8 +114,25 @@ let notesCacheTimestamp: number = 0;
 let filePathCache: Map<string, string> | null = null;
 
 /**
+ * Helper: Calculate path depth (count of slashes)
+ */
+function getPathDepth(path: string): number {
+  return (path.match(/\//g) || []).length;
+}
+
+/**
+ * Helper: Check if newPath is shallower than existingPath
+ */
+function isShallower(newPath: string, existingPath: string): boolean {
+  return getPathDepth(newPath) < getPathDepth(existingPath);
+}
+
+/**
  * Build cache of basename -> full path mappings
  * Cache diupdate setiap kali function ini dipanggil
+ *
+ * Resolution strategy follows Obsidian behavior:
+ * When multiple notes share the same basename, prefer the LEAST NESTED (shallowest) path.
  */
 export async function buildFilePathCache(): Promise<Map<string, string>> {
   const cache = new Map<string, string>();
@@ -126,8 +143,14 @@ export async function buildFilePathCache(): Promise<Map<string, string>> {
     // Store multiple mappings for better wikilink resolution:
 
     // 1. Basename only (e.g., "W51-Plan" -> "Weekly/2025/W51-Plan")
+    // For duplicates, keep the shallowest path (Obsidian behavior)
     const basename = parse(note.slug).name;
-    cache.set(basename.toLowerCase(), note.slug);
+    const basenameLower = basename.toLowerCase();
+    const existing = cache.get(basenameLower);
+
+    if (!existing || isShallower(note.slug, existing)) {
+      cache.set(basenameLower, note.slug);
+    }
 
     // 2. Full slug (e.g., "Weekly/2025/W51-Plan" -> "Weekly/2025/W51-Plan")
     cache.set(note.slug.toLowerCase(), note.slug);
@@ -139,8 +162,12 @@ export async function buildFilePathCache(): Promise<Map<string, string>> {
       // Also store partial paths like "2025/W51-Plan"
       for (let i = 1; i < parts.length; i++) {
         const partialPath = parts.slice(i).join('/');
-        if (!cache.has(partialPath.toLowerCase())) {
-          cache.set(partialPath.toLowerCase(), note.slug);
+        const partialLower = partialPath.toLowerCase();
+        const existingPartial = cache.get(partialLower);
+
+        // For partial paths, also prefer shallower
+        if (!existingPartial || isShallower(note.slug, existingPartial)) {
+          cache.set(partialLower, note.slug);
         }
       }
     }
