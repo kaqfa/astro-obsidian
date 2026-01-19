@@ -2,14 +2,6 @@ import { createClient } from '@libsql/client';
 import * as dotenv from 'dotenv';
 import { sql } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/libsql';
-import { createClient } from '@libsql/client';
-import * as dotenv from 'dotenv';
-import { sql } from 'drizzle-orm';
-import { drizzle } from 'drizzle-orm/libsql';
-import { createClient } from '@libsql/client';
-import * as dotenv from 'dotenv';
-import { sql } from 'drizzle-orm';
-import { drizzle } from 'drizzle-orm/libsql';
 
 // Load environment variables
 dotenv.config();

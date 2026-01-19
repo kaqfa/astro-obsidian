@@ -8,26 +8,6 @@ import * as fs from 'fs';
 import { generateId } from 'lucia';
 import * as path from 'path';
 import * as readline from 'readline';
-import { db } from './src/lib/db';
-import { userTable } from './src/lib/db/schema';
-import * as bcrypt from 'bcrypt';
-import { execSync } from 'child_process';
-import * as dotenv from 'dotenv';
-import { eq } from 'drizzle-orm';
-import * as fs from 'fs';
-import { generateId } from 'lucia';
-import * as path from 'path';
-import * as readline from 'readline';
-import { db } from './src/lib/db';
-import { userTable } from './src/lib/db/schema';
-import * as bcrypt from 'bcrypt';
-import { execSync } from 'child_process';
-import * as dotenv from 'dotenv';
-import { eq } from 'drizzle-orm';
-import * as fs from 'fs';
-import { generateId } from 'lucia';
-import * as path from 'path';
-import * as readline from 'readline';
 
 // Load environment variables
 dotenv.config();

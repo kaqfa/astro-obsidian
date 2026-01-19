@@ -1,6 +1,8 @@
 // Simple in-memory rate limiter for shared hosting environments
 // No external dependencies required
 
+import { logger } from './logger';
+
 interface RateLimitRecord {
   count: number;
   resetTime: number;
@@ -55,6 +57,6 @@ export function cleanupRateLimits() {
   }
 
   if (cleaned > 0) {
-    console.log(`[RATE-LIMIT] Cleaned up ${cleaned} expired entries`);
+    logger.debug(`[RATE-LIMIT] Cleaned up ${cleaned} expired entries`);
   }
 }

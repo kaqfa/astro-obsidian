@@ -2,6 +2,7 @@ import { db } from './db';
 import { userTable, sessionTable } from './db/schema';
 import { DrizzleSQLiteAdapter } from '@lucia-auth/adapter-drizzle';
 import { Lucia } from 'lucia';
+import { logger } from './logger';
 
 const adapter = new DrizzleSQLiteAdapter(db, sessionTable, userTable);
 
@@ -20,7 +21,7 @@ function isSecureEnvironment(): boolean {
 }
 
 // Debug: log environment for troubleshooting
-console.log('[AUTH] Environment:', {
+logger.debug('[AUTH] Environment:', {
   NODE_ENV: process.env.NODE_ENV,
   HTTPS: process.env.HTTPS,
   FORCE_SECURE_COOKIE: process.env.FORCE_SECURE_COOKIE,

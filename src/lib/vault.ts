@@ -2,6 +2,7 @@ import { validateSlug } from './path-validation.js';
 import { readdir, readFile, stat } from 'fs/promises';
 import matter from 'gray-matter';
 import { join, relative, parse } from 'path';
+import { logger } from './logger';
 
 const VAULT_PATH = './vault';
 
@@ -72,7 +73,7 @@ export async function getNote(slug: string): Promise<Note | null> {
       lastModified: stats.mtime,
     };
   } catch (error) {
-    console.error('[VAULT] Error reading note:', slug, error);
+    logger.error('[VAULT] Error reading note:', slug, error);
     return null;
   }
 }
@@ -84,7 +85,7 @@ export async function getAllNotes(): Promise<Note[]> {
   }
 
   // Otherwise, scan and cache
-  console.log('[Cache] Cache miss - scanning all notes...');
+  logger.debug('[Cache] Cache miss - scanning all notes...');
   notesCache = await scanAllNotes();
   notesCacheTimestamp = Date.now();
   return notesCache;
@@ -146,7 +147,7 @@ export async function buildFilePathCache(): Promise<Map<string, string>> {
   }
 
   filePathCache = cache;
-  console.log(
+  logger.debug(
     `[Cache] File path cache built with ${cache.size} mappings for ${notes.length} notes`
   );
   return cache;
@@ -177,7 +178,7 @@ export function getFilePathCache(): Map<string, string> | null {
  * This prevents repeated file system scans
  */
 export async function warmCaches(): Promise<void> {
-  console.log('[Cache] Warming caches...');
+  logger.debug('[Cache] Warming caches...');
   const startTime = Date.now();
 
   // Build notes cache
@@ -188,14 +189,14 @@ export async function warmCaches(): Promise<void> {
   await buildFilePathCache();
 
   const duration = Date.now() - startTime;
-  console.log(`[Cache] Caches warmed in ${duration}ms (${notesCache.length} notes)`);
+  logger.debug(`[Cache] Caches warmed in ${duration}ms (${notesCache.length} notes)`);
 }
 
 /**
  * Invalidate all caches (call before warming)
  */
 export function invalidateCaches(): void {
-  console.log('[Cache] Invalidating all caches...');
+  logger.debug('[Cache] Invalidating all caches...');
   notesCache = null;
   notesCacheTimestamp = 0;
   filePathCache = null;

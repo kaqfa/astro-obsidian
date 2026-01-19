@@ -1,6 +1,7 @@
 import type { AstroCookies } from 'astro';
 import { validateApiKey, isAdmin } from './api-keys';
 import { validateSession } from './middleware';
+import { logger } from './logger';
 
 export interface ApiAuth {
   userId: string;
@@ -88,7 +89,7 @@ export function handleApiErrors(handler: () => Promise<Response>): Promise<Respo
     if (error instanceof AuthError) {
       return createErrorResponse(error.message, error.status);
     }
-    console.error('[API] Unexpected error:', error);
+    logger.error('[API] Unexpected error:', error);
     return createErrorResponse(error?.message || 'Internal server error', 500);
   });
 }
