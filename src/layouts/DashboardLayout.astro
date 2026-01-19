@@ -7,6 +7,7 @@ import ReadingModeToggle from "../components/ReadingModeToggle";
 import Breadcrumb from "../components/Breadcrumb.astro";
 import RecentNotes from "../components/RecentNotes";
 import SettingsMenu from "../components/SettingsMenu";
+import FileTreeContextMenu from "../components/FileTreeContextMenu";
 import { getFileTree, getAllNotes } from "../lib/vault";
 import { getLastSync } from "../lib/git";
 
@@ -299,4 +300,7 @@ const lastSync = await getLastSync();
       <span class="text-text-primary font-medium">Loading...</span>
     </div>
   </div>
+
+  <!-- Context Menu for File Tree -->
+  <FileTreeContextMenu client:load />
 </MainLayout>
